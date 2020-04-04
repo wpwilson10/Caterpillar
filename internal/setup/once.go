@@ -10,7 +10,7 @@ import (
 // Blocks indefinitely, calling code should consider running as go routine.
 func RunOnce(port int, appFunc func()) {
 	// check if already running
-	if !checkOnce(port) {
+	if !CheckOnce(port) {
 		// bind to app's port
 		once(port)
 		// main app logic, runs and blocks indefinitely
@@ -42,9 +42,9 @@ func silent(listener net.Listener) {
 	}
 }
 
-// checkOnce returns true if the given port is busy which represents a running app,
+// CheckOnce returns true if the given port is busy which represents a running app,
 // false otherwise.
-func checkOnce(port int) bool {
+func CheckOnce(port int) bool {
 	// point to port on localhost
 	address := fmt.Sprintf("127.0.0.1:%d", port)
 	// try to connect to port

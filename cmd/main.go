@@ -6,6 +6,7 @@ import (
 	"github.com/wpwilson10/caterpillar/internal/news"
 	"github.com/wpwilson10/caterpillar/internal/reddit"
 	"github.com/wpwilson10/caterpillar/internal/setup"
+	"github.com/wpwilson10/caterpillar/internal/stocks"
 )
 
 func main() {
@@ -34,6 +35,9 @@ func selectApp() (string, int, func()) {
 	redditBotFlag := flag.Bool("redditBot", false, "RedditBot")
 	redditAppFlag := flag.Bool("redditApp", false, "RedditApp")
 	newsAppFlag := flag.Bool("newsApp", false, "NewsApp")
+	iexAppFlag := flag.Bool("iexApp", false, "IEXApp")
+	iexUpdateFlag := flag.Bool("iexUpdateApp", false, "IEXUpdateApp")
+	iexIndexFlag := flag.Bool("iexIndexApp", false, "IEXIndexApp")
 	flag.Parse()
 
 	// return appropriate app information
@@ -44,6 +48,12 @@ func selectApp() (string, int, func()) {
 		return "RedditApp", setup.EnvToInt("REDDIT_PORT"), reddit.App
 	case *newsAppFlag:
 		return "NewsApp", setup.EnvToInt("NEWSPAPER_PORT"), news.App
+	case *iexAppFlag:
+		return "IEXApp", setup.EnvToInt("IEX_PORT"), stocks.App
+	case *iexUpdateFlag:
+		return "IEXUpdate", setup.EnvToInt("IEX_PORT"), stocks.UpdateListingsDriver
+	case *iexIndexFlag:
+		return "IEXIndex", setup.EnvToInt("IEX_PORT"), stocks.UpdateIndex
 	}
 
 	// don't do anything on no match

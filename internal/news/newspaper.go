@@ -28,6 +28,10 @@ func NewNewspaper() *Newspaper {
 // Process extracts the article for the given source and adds it to the Articles list.
 func (n *Newspaper) Process(source *Source, wg *sync.WaitGroup) {
 	defer wg.Done()
+	setup.LogCommon(nil).
+		WithField("Link", source.Link).
+		Info("Processing article")
+
 	// perform the slow aync call
 	article := NewRawArticle(source)
 

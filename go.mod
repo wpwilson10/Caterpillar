@@ -12,8 +12,10 @@ require (
 	github.com/lib/pq v1.3.0
 	github.com/mmcdole/gofeed v1.0.0-beta2
 	github.com/mmcdole/goxpp v0.0.0-20181012175147-0068e33feabf // indirect
+	github.com/pkg/errors v0.9.1 // indirect
+	github.com/shopspring/decimal v0.0.0-20200227202807-02e2044944cc
 	github.com/sirupsen/logrus v1.4.2
 	github.com/turnage/graw v0.0.0-20200312050805-a125496b6083
-	github.com/wpwilson10/utility v0.0.0-20200321185150-0bb43ab83dd2
+	github.com/wpwilson10/iexcloud/v2 v2.2.3-0.20191215221653-f3cc5d1adb1b
 	gopkg.in/guregu/null.v3 v3.4.0
 )

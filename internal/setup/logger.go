@@ -3,7 +3,6 @@ package setup
 import (
 	"os"
 	"runtime"
-	"time"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -42,9 +41,7 @@ func LogCommon(err error) *log.Entry {
 func LogFile() *os.File {
 	// file path
 	prefix := os.Getenv("LOG_FILEPATH")
-	// name file with the current date
-	date := time.Now().Format("2006-01-02")
-	filepath := prefix + date + ".txt"
+	filepath := prefix + "caterpillar.log"
 
 	file, err := os.OpenFile(filepath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0777)
 	if err != nil {

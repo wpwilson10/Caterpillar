@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"math/rand"
 	"os"
-	"os/exec"
 	"sync"
 	"time"
 
@@ -17,10 +16,9 @@ func App() {
 	// connect to redis cache
 	articleSet := redis.NewSet(setup.Redis(), os.Getenv("NEWSPAPER_SET"))
 
-	// run the python script
-	err := exec.Command(os.Getenv("NEWSPAPER_PYTHON_COMMAND")).Run()
-	if err != nil {
-		setup.LogCommon(err).Fatal("Failed executing python script")
+	// check if python script is running
+	if !setup.CheckOnce(setup.EnvToInt("PY_NEWSPAPER_PORT")) {
+		setup.LogCommon(nil).Fatal("Python app not running")
 	}
 
 	// get data from rss feeds

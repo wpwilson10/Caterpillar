@@ -169,4 +169,9 @@ func (article *Article) Insert(db *sqlx.DB) {
 			WithField("Link", article.Link).
 			Error("db.NamedExec")
 	}
+
+	setup.LogCommon(nil).
+		WithField("Link", article.Link).
+		Info("Inserting article")
+
 }

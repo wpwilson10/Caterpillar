@@ -123,7 +123,7 @@ func InsertSubmission(db *sqlx.DB, submission *reddit.Post) int64 {
 			Error("Failed execute statement")
 	}
 
-	log.
+	setup.LogCommon(nil).
 		WithField("redditID", submission.ID).
 		WithField("permalink", submission.Permalink).
 		Info("Inserting reddit submission")
@@ -191,7 +191,7 @@ func InsertComments(db *sqlx.DB, comments []*reddit.Comment, sID int64) {
 	// send it
 	err = tx.Commit()
 	if err != nil {
-		log.WithError(err).Warn("InsertComments commiting transaction")
+		setup.LogCommon(err).Warn("InsertComments commiting transaction")
 	}
 }
 
