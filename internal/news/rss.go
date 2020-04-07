@@ -10,12 +10,39 @@ import (
 	"github.com/gocarina/gocsv"
 	"github.com/mmcdole/gofeed"
 
+	"github.com/wpwilson10/caterpillar/internal/redis"
 	"github.com/wpwilson10/caterpillar/internal/setup"
 )
 
-// NewFeeds returns an array of gofeeds using the rss list in the file at RSS_FILEPATH.
+// SourceListFromRSS returns source objects from rss feeds.
+func SourceListFromRSS(articleSet *redis.Set) []*Source {
+	// get rss feeds
+	rss := newFeeds()
+
+	// iterate through each news feed to create source structs
+	// and filter out links we have already seen
+	sources := []*Source{}
+	for _, r := range rss {
+		// iterate through each article in feed
+		for _, a := range r.Items {
+			// check if we have seen this link before
+			if !articleSet.IsMember(a.Link) {
+				// convert feed article to standard source
+				source := NewSource(FromFeed(a))
+				// add to list if we got something
+				if len(source.Link) > 1 {
+					sources = append(sources, source)
+				}
+			}
+		}
+	}
+
+	return sources
+}
+
+// newFeeds returns an array of gofeeds using the rss list in the file at RSS_FILEPATH.
 // This is potentially slow
-func NewFeeds() []*gofeed.Feed {
+func newFeeds() []*gofeed.Feed {
 	// get rss feeds from file
 	rss := rssFromFile()
 	// setup parser

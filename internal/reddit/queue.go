@@ -52,32 +52,37 @@ func PopQueue(queue *redis.Queue) []QueueSubmission {
 		// look at most recent submission
 		s := queue.Peek()
 
-		// convert to struct
-		q := QueueSubmission{}
-		err := json.Unmarshal([]byte(s), &q)
-		if err != nil {
-			setup.LogCommon(err).
-				WithField("queueSubmission", q).
-				Error("Failed json.Unmarshal")
-		}
-
-		// get lookback time
-		lookback, err := strconv.ParseFloat(os.Getenv("REDDIT_LOOKBACK"), 64)
-		if err != nil {
-			setup.LogCommon(err).
-				WithField("lookback", lookback).
-				Fatal("Failed REDDIT_LOOKBACK float conversion")
-		}
-
-		// check age
-		if time.Since(q.CreatedTime).Hours() >= lookback {
-			// remove peeked value
-			queue.Pop()
-			// add to return
-			out = append(out, q)
-		} else {
-			// got a submission newer than 24 hours
+		if s == nil {
+			// nothing returned so quit
 			flag = false
+		} else {
+			// convert to struct
+			q := QueueSubmission{}
+			err := json.Unmarshal([]byte(*s), &q)
+			if err != nil {
+				setup.LogCommon(err).
+					WithField("queueSubmission", q).
+					Error("Failed json.Unmarshal")
+			}
+
+			// get lookback time
+			lookback, err := strconv.ParseFloat(os.Getenv("REDDIT_LOOKBACK"), 64)
+			if err != nil {
+				setup.LogCommon(err).
+					WithField("lookback", lookback).
+					Fatal("Failed REDDIT_LOOKBACK float conversion")
+			}
+
+			// check age
+			if time.Since(q.CreatedTime).Hours() >= lookback {
+				// remove peeked value
+				queue.Pop()
+				// add to return
+				out = append(out, q)
+			} else {
+				// got a submission newer than 24 hours
+				flag = false
+			}
 		}
 	}
 

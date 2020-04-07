@@ -55,3 +55,22 @@ func FromFeed(feed *gofeed.Item) SourceOption {
 		s.PubDate = feed.PublishedParsed
 	}
 }
+
+// FromReddit uses reddit submissions to make a source
+func FromReddit(item *RedditArticle) SourceOption {
+	// get host from link
+	u, err := url.Parse(item.Link)
+	if err != nil {
+		setup.LogCommon(err).
+			WithField("link", item.Link).
+			Warn("Failed url.Parse")
+	}
+
+	return func(s *Source) {
+		s.Title = item.Title
+		s.Link = item.Link
+		s.Source = "Reddit Submission"
+		s.Host = u.Hostname()
+		s.PubDate = item.PubDate
+	}
+}

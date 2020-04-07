@@ -25,25 +25,30 @@ func (q *Queue) Push(input string) {
 }
 
 // Pop returns the first value and removes it from the queue
-func (q *Queue) Pop() string {
+func (q *Queue) Pop() *string {
 	out, err := q.client.LPop(q.name).Result()
 	if err != nil {
 		setup.LogCommon(err).Error("Failed LPop")
+		return nil
+	} else if len(out) == 0 {
+		return nil
 	}
 
-	return out
+	return &out
 }
 
 // Peek returns the first value but does not remove it from the queue
-func (q *Queue) Peek() string {
+func (q *Queue) Peek() *string {
 	out, err := q.client.LRange(q.name, 0, 0).Result()
 	if err != nil {
 		setup.LogCommon(err).Error("Failed LRange")
+		return nil
+	} else if len(out) == 0 {
+		return nil
 	} else if len(out) != 1 {
 		setup.LogCommon(err).Error("Unexpected LRange return size")
-
-		return ""
+		return nil
 	}
 
-	return out[0]
+	return &(out[0])
 }

@@ -7,6 +7,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/jmoiron/sqlx"
 	"github.com/wpwilson10/caterpillar/internal/redis"
 	"github.com/wpwilson10/caterpillar/internal/setup"
 )
@@ -15,6 +16,8 @@ import (
 func App() {
 	// connect to redis cache
 	articleSet := redis.NewSet(setup.Redis(), os.Getenv("NEWSPAPER_SET"))
+	// connect to database
+	db := setup.SQL()
 
 	// check if python script is running
 	if !setup.CheckOnce(setup.EnvToInt("PY_NEWSPAPER_PORT")) {
@@ -22,16 +25,31 @@ func App() {
 	}
 
 	// get data from rss feeds
-	sources := sourceListFromRSS(articleSet)
+	sources := SourceListFromRSS(articleSet)
 	// common driver to turn sources into articles and insert into database
-	articleDriver(sources, articleSet)
+	articleDriver(sources, articleSet, db)
 }
 
-// Uses source objects to call newspaper3k then insert articles into database
-func articleDriver(sources []*Source, articleSet *redis.Set) {
+// RedditLinksApp queries reddit submissions for articles and adds new ones to the database
+func RedditLinksApp() {
+	// connect to redis cache
+	articleSet := redis.NewSet(setup.Redis(), os.Getenv("NEWSPAPER_SET"))
 	// connect to database
 	db := setup.SQL()
 
+	// check if python script is running
+	if !setup.CheckOnce(setup.EnvToInt("PY_NEWSPAPER_PORT")) {
+		setup.LogCommon(nil).Fatal("Python app not running")
+	}
+
+	// get data from reddit submissions
+	sources := SourceListFromReddit(articleSet, db)
+	// common driver to turn sources into articles and insert into database
+	articleDriver(sources, articleSet, db)
+}
+
+// Uses source objects to call newspaper3k then insert articles into database
+func articleDriver(sources []*Source, articleSet *redis.Set, db *sqlx.DB) {
 	// prep for async calls
 	var wg sync.WaitGroup
 	rand.Seed(time.Now().UnixNano())
@@ -78,30 +96,4 @@ func articleDriver(sources []*Source, articleSet *redis.Set) {
 		WithField("NumInserted", count).
 		WithField("RunTime", setup.RunTime().String()).
 		Info("RunSummary")
-}
-
-// Returns source objects from rss feeds
-func sourceListFromRSS(articleSet *redis.Set) []*Source {
-	// get rss feeds
-	rss := NewFeeds()
-
-	// iterate through each news feed to create source structs
-	// and filter out links we have already seen
-	sources := []*Source{}
-	for _, r := range rss {
-		// iterate through each article in feed
-		for _, a := range r.Items {
-			// check if we have seen this link before
-			if !articleSet.IsMember(a.Link) {
-				// convert feed article to standard source
-				source := NewSource(FromFeed(a))
-				// add to list if we got something
-				if len(source.Link) > 1 {
-					sources = append(sources, source)
-				}
-			}
-		}
-	}
-
-	return sources
 }

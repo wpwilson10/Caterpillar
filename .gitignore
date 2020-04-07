@@ -22,3 +22,4 @@ settings.json
 # Config and unneeded files
 /configs
 /misc
+/logs
