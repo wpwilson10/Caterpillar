@@ -11,8 +11,8 @@ func FuncName() string {
 	return runtime.FuncForPC(pc).Name()
 }
 
-// IsValidUrl tests a string to determine if it is a well-structured url or not.
-func IsValidUrl(toTest string) bool {
+// IsValidURL tests a string to determine if it is a well-structured url or not.
+func IsValidURL(toTest string) bool {
 	_, err := url.ParseRequestURI(toTest)
 	if err != nil {
 		return false

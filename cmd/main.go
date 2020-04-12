@@ -39,6 +39,7 @@ func selectApp() (string, int, func()) {
 	iexAppFlag := flag.Bool("iexApp", false, "IEXApp")
 	iexUpdateFlag := flag.Bool("iexUpdate", false, "IEXUpdateApp")
 	iexIndexFlag := flag.Bool("iexIndex", false, "IEXIndexApp")
+	logSummary := flag.Bool("logSummary", false, "LogSummary")
 	flag.Parse()
 
 	// return appropriate app information
@@ -57,6 +58,8 @@ func selectApp() (string, int, func()) {
 		return "IEXUpdate", setup.EnvToInt("IEX_PORT"), stocks.UpdateListingsDriver
 	case *iexIndexFlag:
 		return "IEXIndex", setup.EnvToInt("IEX_PORT"), stocks.UpdateIndex
+	case *logSummary:
+		return "LogSummary", 9999, setup.SummarizeLog
 	}
 
 	// don't do anything on no match

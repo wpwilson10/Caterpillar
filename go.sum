@@ -91,6 +91,8 @@ github.com/wpwilson10/geddit v0.0.0-20200202192532-7dc474fe3107 h1:ChnwMC2B1wXV7
 github.com/wpwilson10/geddit v0.0.0-20200202192532-7dc474fe3107/go.mod h1:fAd0q8koErbHLEREgwFEuZ5jwn+nhY6jR609X0R+GzA=
 github.com/wpwilson10/iexcloud/v2 v2.2.3-0.20191215221653-f3cc5d1adb1b h1:uxjsRtO10685ibx/a5m9zxYY1VrK7pZ6V6YDBH+BgSM=
 github.com/wpwilson10/iexcloud/v2 v2.2.3-0.20191215221653-f3cc5d1adb1b/go.mod h1:7NyDiM6nEoea8kReQNyNvqjg+Vxo35ljk7EbExECRIw=
+github.com/wpwilson10/utility v0.0.0-20200321185150-0bb43ab83dd2 h1:0eKainLHxl61quOOuGQvj+wj9BkGq7l/FMDX3kr8NOc=
+github.com/wpwilson10/utility v0.0.0-20200321185150-0bb43ab83dd2/go.mod h1:7RTkKb4yhDqz1dzF2iQ8F3acMMX3Uesdz3vGmSpO4ww=
 github.com/yuin/goldmark v1.1.25/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=
 golang.org/x/crypto v0.0.0-20191011191535-87dc89f01550/go.mod h1:yigFU9vqHzYiE8UmvKecakEJjdnWj3jj499lnFckfCI=
@@ -139,6 +141,8 @@ google.golang.org/appengine v1.6.5/go.mod h1:8WjMMxjGQR8xUklV/ARdw2HLXBOI7O7uCID
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
 gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
 gopkg.in/fsnotify.v1 v1.4.7/go.mod h1:Tz8NjZHkW78fSQdbUxIjBTcgA1z1m8ZHf0WmKUhAMys=
+gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df h1:n7WqCuqOuCbNr617RXOY0AWRXxgwEyPp2z+p0+hgMuE=
+gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df/go.mod h1:LRQQ+SO6ZHR7tOkpBDuZnXENFzX8qRjMDMyPD6BRkCw=
 gopkg.in/guregu/null.v3 v3.4.0 h1:AOpMtZ85uElRhQjEDsFx21BkXqFPwA7uoJukd4KErIs=
 gopkg.in/guregu/null.v3 v3.4.0/go.mod h1:E4tX2Qe3h7QdL+uZ3a0vqvYwKQsRSQKM5V4YltdgH9Y=
 gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7/go.mod h1:dt/ZhP58zS4L8KSrWDmTeBkI65Dw0HsyUHuEVlX15mw=

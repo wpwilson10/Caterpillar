@@ -14,8 +14,6 @@ import (
 // App takes queued reddit submissions and gets most recent data to add to database
 // Know issues - GetCommments cannot pull all comments for large threads. Limited by API
 func App() {
-	setup.LogCommon(nil).Info("Starting RedditApp")
-	setup.Application("RedditDriver")
 	db := setup.SQL()
 	queue := redis.NewQueue(setup.Redis(), os.Getenv("REDDIT_QUEUE"))
 	bot := BotClient()

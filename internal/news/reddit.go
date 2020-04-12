@@ -65,7 +65,7 @@ func newRedditArticles(db *sqlx.DB) []*RedditArticle {
 	out := []*RedditArticle{}
 	for _, s := range submissions {
 		s.Link = strings.TrimSpace(s.Link)
-		if setup.IsValidUrl(s.Link) {
+		if setup.IsValidURL(s.Link) {
 			out = append(out, &s)
 		}
 	}

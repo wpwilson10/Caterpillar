@@ -17,5 +17,7 @@ require (
 	github.com/sirupsen/logrus v1.4.2
 	github.com/turnage/graw v0.0.0-20200312050805-a125496b6083
 	github.com/wpwilson10/iexcloud/v2 v2.2.3-0.20191215221653-f3cc5d1adb1b
+	github.com/wpwilson10/utility v0.0.0-20200321185150-0bb43ab83dd2
+	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
 	gopkg.in/guregu/null.v3 v3.4.0
 )
