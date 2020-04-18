@@ -13,8 +13,8 @@ import (
 
 // Article stores a news article in a format matching the NewsArticle table schema
 type Article struct {
-	ArticleID           int64       `db:"article_id"`
-	DataTime            time.Time   `db:"data_entry_time"`
+	ArticleID           int64       `db:"article_id"`            // updated to database value after call to insert
+	DataTime            time.Time   `db:"data_entry_time"`       //
 	Source              string      `db:"source"`                // source of the link (e.g. RSS, Reddit)
 	Host                string      `db:"host"`                  // host or vendor of article (e.g. www.cnn.com, www.espn.com)
 	Link                string      `db:"link"`                  // original url from the reference
@@ -28,7 +28,7 @@ type Article struct {
 }
 
 // NewArticle parses data from newspaper3k and source into a standard article.
-func NewArticle(raw *RawArticle, source *Source) *Article {
+func NewArticle(raw *Newspaper, source *Source) *Article {
 	var article = Article{
 		DataTime:            time.Now(),
 		Source:              source.Source,
@@ -44,6 +44,19 @@ func NewArticle(raw *RawArticle, source *Source) *Article {
 	}
 
 	return &article
+}
+
+// FindArticle returns the article associated with the given URL
+func FindArticle(db *sqlx.DB, url string) *Article {
+	out := Article{}
+	err := db.Get(&out, "SELECT * FROM NewsArticle WHERE link=$1 OR canonical_link=$1", url)
+	if err != nil {
+		setup.LogCommon(err).
+			WithField("url", url).
+			Error("Failed Get statement")
+	}
+
+	return &out
 }
 
 // Attribute Setters
@@ -130,48 +143,52 @@ func publishedTime(t string, s *Source) null.Time {
 func (article *Article) Insert(db *sqlx.DB) {
 	// Setup
 	var insertStmt string = `INSERT INTO NewsArticle (
-								article_id, 		-- DEFAULT
-								data_entry_time, 	-- Now()
-								source,
-								host,
-								link,
-								source_published_time,
-								published_time,
-								source_title,
-								title,
-								canonical_link,
-								body,
-								authors
+								article_id, 			-- DEFAULT
+								data_entry_time, 		-- Now()
+								source,					-- $1
+								host,					-- $2
+								link,					-- $3
+								source_published_time,  -- $4
+								published_time,			-- $5
+								source_title,			-- $6
+								title,					-- $7
+								canonical_link,			-- $8
+								body,					-- $9
+								authors					-- $10
 								)`
 
-	var valueStmt string = `VALUES (
-								DEFAULT,
-								Now(),
-								:source,
-								:host,
-								:link,
-								:source_published_time,
-								:published_time,
-								:source_title,
-								:title,
-								:canonical_link,
-								:body,
-								:authors
-								)`
+	var valueStmt string = `VALUES (DEFAULT, Now(), $1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`
+	var returnStmt string = "RETURNING article_id;"
+	var fullStmt string = insertStmt + " " + valueStmt + " " + returnStmt
 
-	var fullStmt string = insertStmt + " " + valueStmt
+	// for the return
+	var id int64
 
-	// Insert article
-	_, err := db.NamedExec(fullStmt, article)
+	// Use this hacky setup because libpq is stupid
+	// See https://github.com/jmoiron/sqlx/issues/154
+	err := db.QueryRow(fullStmt,
+		article.Source,              // $1
+		article.Host,                // $2
+		article.Link,                // $3
+		article.SourcePublishedTime, // $4
+		article.PublishedTime,       // $5
+		article.SourceTitle,         // $6
+		article.Title,               // $7
+		article.CanonicalLink,       // $8
+		article.Body,                // $9
+		article.Authors).            // $10
+		Scan(&id)
 
 	if err != nil {
 		setup.LogCommon(err).
 			WithField("Link", article.Link).
-			Error("db.NamedExec")
+			Error("Failed QueryRow")
+	} else {
+		// save ID
+		article.ArticleID = id
 	}
 
 	setup.LogCommon(nil).
 		WithField("Link", article.Link).
 		Info("Inserting article")
-
 }

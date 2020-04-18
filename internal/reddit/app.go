@@ -15,10 +15,12 @@ import (
 // Know issues - GetCommments cannot pull all comments for large threads. Limited by API
 func App() {
 	db := setup.SQL()
-	queue := redis.NewQueue(setup.Redis(), os.Getenv("REDDIT_QUEUE"))
 	bot := BotClient()
+	// connect to redis caches
+	articleSet := redis.NewSet(setup.Redis(), os.Getenv("NEWSPAPER_SET"))
 
 	// get submissions to process
+	queue := redis.NewQueue(setup.Redis(), os.Getenv("REDDIT_QUEUE"))
 	submissions := PopQueue(queue)
 
 	// for tracking async calls
@@ -29,7 +31,7 @@ func App() {
 		fmt.Println(s.Permalink)
 
 		wg.Add(1)
-		go Driver(db, bot, &wg, s)
+		go Driver(db, bot, &wg, s, articleSet)
 		// reddit api has 60 calls/minute limit, and each run takes two calls
 		time.Sleep(2 * time.Second)
 	}

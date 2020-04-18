@@ -30,6 +30,11 @@ func App() {
 			time.Sleep(1 * time.Second)
 		}
 	}
+
+	// log summary
+	setup.LogCommon(nil).
+		WithField("RunTime", setup.RunTime().String()).
+		Info("RunSummary")
 }
 
 // UpdateIndex update the index for listings in the IEX listing table.
@@ -70,4 +75,10 @@ func UpdateListingsDriver() {
 	newListings := NewListings(dbListings, freshListings)
 	InsertNewListings(newListings, db)
 
+	// log summary
+	setup.LogCommon(nil).
+		WithField("NumNewListings", len(newListings)).
+		WithField("NumUpdatedListings", len(updatedListings)).
+		WithField("RunTime", setup.RunTime().String()).
+		Info("RunSummary")
 }

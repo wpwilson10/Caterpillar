@@ -7,11 +7,13 @@ import (
 	"github.com/jmoiron/sqlx"
 	log "github.com/sirupsen/logrus"
 	"github.com/turnage/graw/reddit"
+	"github.com/wpwilson10/caterpillar/internal/news"
+	"github.com/wpwilson10/caterpillar/internal/redis"
 	"github.com/wpwilson10/caterpillar/internal/setup"
 )
 
 // Driver contains the main application logic for adding submissions and comments to the database.
-func Driver(db *sqlx.DB, bot *reddit.Bot, wg *sync.WaitGroup, q QueueSubmission) {
+func Driver(db *sqlx.DB, bot *reddit.Bot, wg *sync.WaitGroup, q QueueSubmission, articleSet *redis.Set) {
 	// async call
 	defer wg.Done()
 
@@ -27,6 +29,8 @@ func Driver(db *sqlx.DB, bot *reddit.Bot, wg *sync.WaitGroup, q QueueSubmission)
 		commentList := ProcessComments(submission.Replies)
 		// Add comments to database
 		InsertComments(db, commentList, sID)
+		// Handle getting and linking submission to a news article
+		news.RedditNewsDriver(db, articleSet, submission, sID)
 	}
 }
 

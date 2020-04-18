@@ -35,7 +35,6 @@ func selectApp() (string, int, func()) {
 	redditBotFlag := flag.Bool("redditBot", false, "RedditBot")
 	redditAppFlag := flag.Bool("redditApp", false, "RedditApp")
 	newsAppFlag := flag.Bool("newsApp", false, "NewsApp")
-	newsRedditFlag := flag.Bool("newsReddit", false, "NewsFromRedditApp")
 	iexAppFlag := flag.Bool("iexApp", false, "IEXApp")
 	iexUpdateFlag := flag.Bool("iexUpdate", false, "IEXUpdateApp")
 	iexIndexFlag := flag.Bool("iexIndex", false, "IEXIndexApp")
@@ -50,8 +49,6 @@ func selectApp() (string, int, func()) {
 		return "RedditApp", setup.EnvToInt("REDDIT_PORT"), reddit.App
 	case *newsAppFlag:
 		return "NewsApp", setup.EnvToInt("NEWSPAPER_PORT"), news.App
-	case *newsRedditFlag:
-		return "NewsRedditApp", setup.EnvToInt("NEWSPAPER_PORT"), news.RedditLinksApp
 	case *iexAppFlag:
 		return "IEXApp", setup.EnvToInt("IEX_PORT"), stocks.App
 	case *iexUpdateFlag:

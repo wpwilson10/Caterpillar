@@ -1,13 +1,14 @@
 package news
 
 import (
-	"fmt"
 	"math/rand"
 	"os"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/jmoiron/sqlx"
+	"github.com/turnage/graw/reddit"
 	"github.com/wpwilson10/caterpillar/internal/redis"
 	"github.com/wpwilson10/caterpillar/internal/setup"
 )
@@ -18,6 +19,11 @@ func App() {
 	articleSet := redis.NewSet(setup.Redis(), os.Getenv("NEWSPAPER_SET"))
 	// connect to database
 	db := setup.SQL()
+	// randomize time between calls
+	rand.Seed(time.Now().UnixNano())
+	// prep for async calls
+	var wg sync.WaitGroup
+	var numArticles uint64
 
 	// check if python script is running
 	if !setup.CheckOnce(setup.EnvToInt("PY_NEWSPAPER_PORT")) {
@@ -26,42 +32,20 @@ func App() {
 
 	// get data from rss feeds
 	sources := SourceListFromRSS(articleSet)
-	// common driver to turn sources into articles and insert into database
-	articleDriver(sources, articleSet, db)
-}
+	// process each source
+	for _, source := range sources {
+		// async parts - hands off a source for processing
+		go func(source *Source) {
+			defer wg.Done()
+			// do the work of getting data and saving it
+			a := Driver(source, db, articleSet)
+			// count number of articles successfully returned
+			if a != nil {
+				atomic.AddUint64(&numArticles, 1)
+			}
 
-// RedditLinksApp queries reddit submissions for articles and adds new ones to the database
-func RedditLinksApp() {
-	// connect to redis cache
-	articleSet := redis.NewSet(setup.Redis(), os.Getenv("NEWSPAPER_SET"))
-	// connect to database
-	db := setup.SQL()
+		}(source)
 
-	// check if python script is running
-	if !setup.CheckOnce(setup.EnvToInt("PY_NEWSPAPER_PORT")) {
-		setup.LogCommon(nil).Fatal("Python app not running")
-	}
-
-	// get data from reddit submissions
-	sources := SourceListFromReddit(articleSet, db)
-	// common driver to turn sources into articles and insert into database
-	articleDriver(sources, articleSet, db)
-}
-
-// Uses source objects to call newspaper3k then insert articles into database
-func articleDriver(sources []*Source, articleSet *redis.Set, db *sqlx.DB) {
-	// prep for async calls
-	var wg sync.WaitGroup
-	rand.Seed(time.Now().UnixNano())
-
-	// call newspaper to extract article data
-	newspaper := NewNewspaper()
-	for _, s := range sources {
-		fmt.Println(s.Title, s.Link, s.Host)
-
-		// call async function
-		wg.Add(1)
-		go newspaper.Process(s, &wg)
 		// random sleep time to be nice
 		n := rand.Int63n(5000) // n will be between 0 and 5000
 		// base time of one second + [0 - 5] seconds
@@ -69,31 +53,93 @@ func articleDriver(sources []*Source, articleSet *redis.Set, db *sqlx.DB) {
 		t := time.Second + (time.Millisecond * time.Duration(n))
 		time.Sleep(t)
 	}
-	// collect async data before continuing
-	wg.Wait()
 
-	// process each article
-	count := 0
-	for i, a := range newspaper.Articles {
-		// check if we have seen the article before using the canonical link
-		if len(a.Canonical) > 1 && articleSet.IsMember(a.Canonical) {
-			// skip
-		} else {
-			// create standard article and put it in database
-			article := NewArticle(a, newspaper.Sources[i])
-			article.Insert(db)
-			// cache known links so we don't duplicate articles
-			articleSet.Add(newspaper.Sources[i].Link)
-			articleSet.Add(a.Canonical)
-			count = count + 1
-		}
-	}
+	// wait to finish
+	wg.Wait()
 
 	// run summary
 	setup.LogCommon(nil).
 		WithField("NumSources", len(sources)).
-		WithField("NumArticles", len(newspaper.Articles)).
-		WithField("NumInserted", count).
+		WithField("NumArticles", numArticles).
 		WithField("RunTime", setup.RunTime().String()).
 		Info("RunSummary")
+}
+
+// Driver uses a source to retrieve article data and save it into the database.
+// Article will have be inserted into database and cached on successful calls.
+// Returns nil if we have seen article before or failing to get or process article.
+func Driver(source *Source, db *sqlx.DB, articleSet *redis.Set) *Article {
+	// check if we have seen this source before
+	if len(source.Link) > 1 && articleSet.IsMember(source.Link) {
+		// skip
+		return nil
+	}
+
+	// call newspaper3k to get data
+	newspaper := NewNewspaper(source)
+	// check we got something
+	if newspaper == nil {
+		return nil
+	}
+
+	// check if we have seen the article before using the canonical link
+	if len(newspaper.Canonical) > 1 && articleSet.IsMember(newspaper.Canonical) {
+		// skip
+		return nil
+	}
+
+	// create standard article and put it in database
+	article := NewArticle(newspaper, source)
+	article.Insert(db)
+	// cache known links so we don't duplicate articles
+	articleSet.Add(source.Link)
+	articleSet.Add(newspaper.Canonical)
+
+	return article
+}
+
+// RedditNewsDriver adds news articles from reddit posts to the NewsArticle database
+// and adds a RedditNews relationship entry to the RedditNews table.
+func RedditNewsDriver(db *sqlx.DB, articleSet *redis.Set, submission *reddit.Post, sID int64) {
+	// quick initial check that submissions have a link
+	if len(submission.URL) <= 2 {
+		// dont log error because it is normal for submissions to not have external link
+		return
+	}
+
+	// submission that has been seen before
+	if articleSet.IsMember(submission.URL) {
+		// get the previous submission
+		article := FindArticle(db, submission.URL)
+		// sanity check that article exists
+		if article == nil {
+			setup.LogCommon(nil).
+				WithField("redditID", submission.ID).
+				WithField("redditURL", submission.URL).
+				WithField("SubmissionID", sID).
+				Error("Failed to find article in articleSet")
+		} else {
+			// create a table entry and insert it
+			rn := NewRedditNews(article.ArticleID, sID)
+			rn.Insert(db)
+		}
+	} else {
+		// submission that has not been seen before
+		// put into form ArticleDriver expects
+		source := NewSource(FromReddit(submission))
+		// get article and add to database
+		article := Driver(source, db, articleSet)
+		// check that article exists
+		if article == nil {
+			setup.LogCommon(nil).
+				WithField("redditID", submission.ID).
+				WithField("redditURL", submission.URL).
+				WithField("SubmissionID", sID).
+				Error("Failed Driver")
+		} else {
+			// create a table entry and insert it
+			rn := NewRedditNews(article.ArticleID, sID)
+			rn.Insert(db)
+		}
+	}
 }

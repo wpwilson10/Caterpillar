@@ -5,9 +5,63 @@ import (
 	"time"
 
 	"github.com/jmoiron/sqlx"
+
 	"github.com/wpwilson10/caterpillar/internal/redis"
 	"github.com/wpwilson10/caterpillar/internal/setup"
 )
+
+// RedditNews represents the database table for linking reddit submissions to news articles.
+type RedditNews struct {
+	LinkID       int64     `db:"link_id"`
+	ArticleID    int64     `db:"article_id"`
+	SubmissionID int64     `db:"submission_id"`
+	DataTime     time.Time `db:"data_entry_time"`
+}
+
+// NewRedditNews creates an entry for the RedditNews database table
+func NewRedditNews(articleID int64, submissionID int64) *RedditNews {
+	var link = RedditNews{
+		ArticleID:    articleID,
+		SubmissionID: submissionID,
+	}
+
+	return &link
+}
+
+// Insert adds this redditnews relationship to the database table.
+// Performs no validation.
+func (link *RedditNews) Insert(db *sqlx.DB) {
+	// Setup
+	var insertStmt string = `INSERT INTO RedditNews (
+								data_entry_time, 	-- Now()
+								article_id, 		-- $1
+								submission_id		-- $2
+								)`
+
+	var valueStmt string = `VALUES (
+								Now(),
+								:article_id,
+								:submission_id
+								)`
+
+	var fullStmt string = insertStmt + " " + valueStmt
+
+	// Insert article
+	_, err := db.NamedExec(fullStmt, link)
+
+	if err != nil {
+		setup.LogCommon(err).
+			WithField("ArticleID", link.ArticleID).
+			WithField("SubmissionID", link.SubmissionID).
+			Error("db.NamedExec")
+	}
+
+	setup.LogCommon(nil).
+		WithField("ArticleID", link.ArticleID).
+		WithField("SubmissionID", link.SubmissionID).
+		Info("Inserting article")
+
+}
 
 // SourceListFromReddit returns source objects from reddit submissions.
 func SourceListFromReddit(articleSet *redis.Set, db *sqlx.DB) []*Source {
@@ -21,7 +75,7 @@ func SourceListFromReddit(articleSet *redis.Set, db *sqlx.DB) []*Source {
 		// check if we have seen this link before
 		if !articleSet.IsMember(r.Link) {
 			// convert feed article to standard source
-			source := NewSource(FromReddit(r))
+			source := NewSource(FromRedditArticle(r))
 			// add to list if we got something
 			if len(source.Link) > 1 {
 				sources = append(sources, source)
@@ -31,6 +85,8 @@ func SourceListFromReddit(articleSet *redis.Set, db *sqlx.DB) []*Source {
 
 	return sources
 }
+
+// For future backfills below
 
 // RedditArticle represents external links from reddit submissions.
 type RedditArticle struct {

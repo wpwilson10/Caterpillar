@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/mmcdole/gofeed"
+	"github.com/turnage/graw/reddit"
 
 	"github.com/wpwilson10/caterpillar/internal/setup"
 )
@@ -56,8 +57,31 @@ func FromFeed(feed *gofeed.Item) SourceOption {
 	}
 }
 
-// FromReddit uses reddit submissions to make a source
-func FromReddit(item *RedditArticle) SourceOption {
+// FromReddit uses graw reddit.Post to make a source
+func FromReddit(item *reddit.Post) SourceOption {
+	// get host from link
+	u, err := url.Parse(item.URL)
+	if err != nil {
+		setup.LogCommon(err).
+			WithField("link", item.URL).
+			Warn("Failed url.Parse")
+	}
+
+	// convert time
+	var y int64 = int64(item.CreatedUTC)
+	cTime := time.Unix(y, 0)
+
+	return func(s *Source) {
+		s.Title = item.Title
+		s.Link = item.URL
+		s.Source = "Reddit Submission"
+		s.Host = u.Hostname()
+		s.PubDate = &cTime
+	}
+}
+
+// FromRedditArticle uses reddit submissions to make a source
+func FromRedditArticle(item *RedditArticle) SourceOption {
 	// get host from link
 	u, err := url.Parse(item.Link)
 	if err != nil {
