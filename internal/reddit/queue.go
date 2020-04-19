@@ -80,7 +80,7 @@ func PopQueue(queue *redis.Queue) []QueueSubmission {
 				// add to return
 				out = append(out, q)
 			} else {
-				// got a submission newer than 24 hours
+				// got a submission newer than REDDIT_LOOKBACK
 				flag = false
 			}
 		}

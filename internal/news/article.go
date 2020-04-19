@@ -2,6 +2,7 @@ package news
 
 import (
 	"encoding/json"
+	"net/url"
 	"strings"
 	"time"
 
@@ -32,7 +33,7 @@ func NewArticle(raw *Newspaper, source *Source) *Article {
 	var article = Article{
 		DataTime:            time.Now(),
 		Source:              source.Source,
-		Host:                source.Host,
+		Host:                host(source.Host, raw.Canonical),
 		Link:                source.Link,
 		SourcePublishedTime: sourcePublishedTime(source.PubDate),
 		PublishedTime:       publishedTime(raw.PubDate, source),
@@ -60,6 +61,23 @@ func FindArticle(db *sqlx.DB, url string) *Article {
 }
 
 // Attribute Setters
+
+func host(sourceHost string, canonicalLink string) string {
+	// get host from canonical if it exists
+	if len(canonicalLink) > 2 {
+		u, err := url.Parse(canonicalLink)
+		if err != nil {
+			setup.LogCommon(err).
+				WithField("link", canonicalLink).
+				Warn("Failed url.Parse")
+		} else {
+			return u.Hostname()
+		}
+	}
+
+	// else use source host
+	return sourceHost
+}
 
 func authors(list []string, source *Source) null.String {
 	// turn into json

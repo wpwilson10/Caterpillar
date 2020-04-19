@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/turnage/graw"
+	"github.com/wpwilson10/caterpillar/internal/news"
 	"github.com/wpwilson10/caterpillar/internal/redis"
 	"github.com/wpwilson10/caterpillar/internal/setup"
 )
@@ -18,6 +19,8 @@ func App() {
 	bot := BotClient()
 	// connect to redis caches
 	articleSet := redis.NewSet(setup.Redis(), os.Getenv("NEWSPAPER_SET"))
+	// setup blacklist of article hosts to avoid
+	blacklist := news.NewBlackList()
 
 	// get submissions to process
 	queue := redis.NewQueue(setup.Redis(), os.Getenv("REDDIT_QUEUE"))
@@ -31,7 +34,7 @@ func App() {
 		fmt.Println(s.Permalink)
 
 		wg.Add(1)
-		go Driver(db, bot, &wg, s, articleSet)
+		go Driver(db, bot, &wg, s, articleSet, blacklist)
 		// reddit api has 60 calls/minute limit, and each run takes two calls
 		time.Sleep(2 * time.Second)
 	}

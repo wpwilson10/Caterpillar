@@ -19,6 +19,8 @@ func App() {
 	articleSet := redis.NewSet(setup.Redis(), os.Getenv("NEWSPAPER_SET"))
 	// connect to database
 	db := setup.SQL()
+	// setup blacklist of article hosts to avoid
+	blacklist := NewBlackList()
 	// randomize time between calls
 	rand.Seed(time.Now().UnixNano())
 	// prep for async calls
@@ -38,7 +40,7 @@ func App() {
 		go func(source *Source) {
 			defer wg.Done()
 			// do the work of getting data and saving it
-			a := Driver(source, db, articleSet)
+			a := Driver(source, db, articleSet, blacklist)
 			// count number of articles successfully returned
 			if a != nil {
 				atomic.AddUint64(&numArticles, 1)
@@ -68,9 +70,14 @@ func App() {
 // Driver uses a source to retrieve article data and save it into the database.
 // Article will have be inserted into database and cached on successful calls.
 // Returns nil if we have seen article before or failing to get or process article.
-func Driver(source *Source, db *sqlx.DB, articleSet *redis.Set) *Article {
+func Driver(source *Source, db *sqlx.DB, articleSet *redis.Set, blacklast *BlackList) *Article {
 	// check if we have seen this source before
 	if len(source.Link) > 1 && articleSet.IsMember(source.Link) {
+		// skip
+		return nil
+	}
+	// check if host is on blacklist
+	if blacklast.IsBlackListed(source.Host) {
 		// skip
 		return nil
 	}
@@ -88,8 +95,22 @@ func Driver(source *Source, db *sqlx.DB, articleSet *redis.Set) *Article {
 		return nil
 	}
 
-	// create standard article and put it in database
+	// create standard article
 	article := NewArticle(newspaper, source)
+
+	// check we got data worth inserting
+	if article.Body.IsZero() {
+		// no body text
+		return nil
+	} else if article.SourceTitle.IsZero() && article.Title.IsZero() {
+		// no titles
+		return nil
+	} else if blacklast.IsBlackListed(article.Host) {
+		// host may be updated to canonical, check if this is blacklisted
+		return nil
+	}
+
+	// Put article in database
 	article.Insert(db)
 	// cache known links so we don't duplicate articles
 	articleSet.Add(source.Link)
@@ -100,7 +121,7 @@ func Driver(source *Source, db *sqlx.DB, articleSet *redis.Set) *Article {
 
 // RedditNewsDriver adds news articles from reddit posts to the NewsArticle database
 // and adds a RedditNews relationship entry to the RedditNews table.
-func RedditNewsDriver(db *sqlx.DB, articleSet *redis.Set, submission *reddit.Post, sID int64) {
+func RedditNewsDriver(db *sqlx.DB, articleSet *redis.Set, blacklist *BlackList, submission *reddit.Post, sID int64) {
 	// quick initial check that submissions have a link
 	if len(submission.URL) <= 2 {
 		// dont log error because it is normal for submissions to not have external link
@@ -128,15 +149,9 @@ func RedditNewsDriver(db *sqlx.DB, articleSet *redis.Set, submission *reddit.Pos
 		// put into form ArticleDriver expects
 		source := NewSource(FromReddit(submission))
 		// get article and add to database
-		article := Driver(source, db, articleSet)
+		article := Driver(source, db, articleSet, blacklist)
 		// check that article exists
-		if article == nil {
-			setup.LogCommon(nil).
-				WithField("redditID", submission.ID).
-				WithField("redditURL", submission.URL).
-				WithField("SubmissionID", sID).
-				Error("Failed Driver")
-		} else {
+		if article != nil {
 			// create a table entry and insert it
 			rn := NewRedditNews(article.ArticleID, sID)
 			rn.Insert(db)

@@ -13,7 +13,7 @@ import (
 )
 
 // Driver contains the main application logic for adding submissions and comments to the database.
-func Driver(db *sqlx.DB, bot *reddit.Bot, wg *sync.WaitGroup, q QueueSubmission, articleSet *redis.Set) {
+func Driver(db *sqlx.DB, bot *reddit.Bot, wg *sync.WaitGroup, q QueueSubmission, articleSet *redis.Set, blacklist *news.BlackList) {
 	// async call
 	defer wg.Done()
 
@@ -21,16 +21,20 @@ func Driver(db *sqlx.DB, bot *reddit.Bot, wg *sync.WaitGroup, q QueueSubmission,
 	submission := GetSubmission(bot, q.Permalink)
 
 	// if we got a real not-deleted submission, and it was commented or scored at least 5 times
-	// 5 is  an arbitrary score threshold
-	if (submission != nil) && (!submission.Deleted) && ((submission.NumComments + submission.Score) >= 5) {
+	scoreCutoff := setup.EnvToInt("REDDIT_SCORE_CUTOFF")
+	if (submission != nil) && (!submission.Deleted) && ((submission.NumComments + submission.Score) >= int32(scoreCutoff)) {
 		// Put submission in database, returns the row ID
 		sID := InsertSubmission(db, submission)
 		// Transform comments from tree to list
 		commentList := ProcessComments(submission.Replies)
 		// Add comments to database
 		InsertComments(db, commentList, sID)
-		// Handle getting and linking submission to a news article
-		news.RedditNewsDriver(db, articleSet, submission, sID)
+
+		// only process links that go externally
+		if !(submission.IsRedditMediaDomain || submission.IsSelf) {
+			// Handle getting and linking submission to a news article
+			news.RedditNewsDriver(db, articleSet, blacklist, submission, sID)
+		}
 	}
 }
 

@@ -50,16 +50,16 @@ func BotClient() *reddit.Bot {
 }
 
 func readSubredditList() []string {
-	// get .env filepath
-	absPath, err := filepath.Abs("./configs/subreddits.csv")
+	// get subreddit list filepath
+	absPath, err := filepath.Abs(os.Getenv("REDDIT_LIST_FILEPATH"))
 	if err != nil {
-		setup.LogCommon(err).Fatal("readSubredditList filepath")
+		setup.LogCommon(err).Fatal("Filepath")
 	}
 
 	// Open the file
 	csvfile, err := os.Open(absPath)
 	if err != nil {
-		setup.LogCommon(err).Fatal("readSubredditList open csv")
+		setup.LogCommon(err).Fatal("Open csv")
 	}
 
 	// Parse the file
@@ -75,7 +75,7 @@ func readSubredditList() []string {
 			break
 		}
 		if err != nil {
-			setup.LogCommon(err).Fatal("readSubredditList read csv")
+			setup.LogCommon(err).Fatal("Read csv")
 		}
 
 		// add to list
