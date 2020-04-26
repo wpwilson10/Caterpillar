@@ -2,7 +2,6 @@ package news
 
 import (
 	"bytes"
-	"errors"
 	"net/http"
 	"os"
 
@@ -71,8 +70,7 @@ func NewNewspaper(source *Source) *Newspaper {
 	resp, err := client.Do(req)
 	if err != nil {
 		// ignore common error where nothing is returned
-		var nullErr = errors.New("result is null")
-		if err == nullErr {
+		if err == json2.ErrNullResult {
 			return nil
 		}
 
@@ -88,8 +86,7 @@ func NewNewspaper(source *Source) *Newspaper {
 	err = json2.DecodeClientResponse(resp.Body, &result)
 	if err != nil {
 		// ignore common error where nothing is returned
-		var nullErr = errors.New("result is null")
-		if err == nullErr {
+		if err == json2.ErrNullResult {
 			return nil
 		}
 

@@ -38,6 +38,7 @@ func App() {
 	// process each source
 	for _, source := range sources {
 		// async parts - hands off a source for processing
+		wg.Add(1)
 		go func(source *Source) {
 			defer wg.Done()
 			// do the work of getting data and saving it
