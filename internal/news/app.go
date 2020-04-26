@@ -1,6 +1,7 @@
 package news
 
 import (
+	"fmt"
 	"math/rand"
 	"os"
 	"sync"
@@ -78,6 +79,8 @@ func Driver(source *Source, db *sqlx.DB, articleSet *redis.Set, blacklast *Black
 	}
 	// check if host is on blacklist
 	if blacklast.IsBlackListed(source.Host) {
+		// host may be updated to canonical, check if this is blacklisted
+		fmt.Println("Black listed", source.Host, source.Source)
 		// skip
 		return nil
 	}
@@ -107,6 +110,7 @@ func Driver(source *Source, db *sqlx.DB, articleSet *redis.Set, blacklast *Black
 		return nil
 	} else if blacklast.IsBlackListed(article.Host) {
 		// host may be updated to canonical, check if this is blacklisted
+		fmt.Println("Black listed", article.Link, source.Host, source.Source)
 		return nil
 	}
 
@@ -140,6 +144,7 @@ func RedditNewsDriver(db *sqlx.DB, articleSet *redis.Set, blacklist *BlackList, 
 				WithField("SubmissionID", sID).
 				Error("Failed to find article in articleSet")
 		} else {
+			fmt.Println("Found existing article", article.ArticleID, article.Link, submission.Permalink)
 			// create a table entry and insert it
 			rn := NewRedditNews(article.ArticleID, sID)
 			rn.Insert(db)

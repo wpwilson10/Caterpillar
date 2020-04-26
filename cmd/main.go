@@ -7,6 +7,7 @@ import (
 	"github.com/wpwilson10/caterpillar/internal/reddit"
 	"github.com/wpwilson10/caterpillar/internal/setup"
 	"github.com/wpwilson10/caterpillar/internal/stocks"
+	"github.com/wpwilson10/caterpillar/internal/text"
 )
 
 func main() {
@@ -38,6 +39,7 @@ func selectApp() (string, int, func()) {
 	iexAppFlag := flag.Bool("iexApp", false, "IEXApp")
 	iexUpdateFlag := flag.Bool("iexUpdate", false, "IEXUpdateApp")
 	iexIndexFlag := flag.Bool("iexIndex", false, "IEXIndexApp")
+	textClean := flag.Bool("textClean", false, "TextClean")
 	logSummary := flag.Bool("logSummary", false, "LogSummary")
 	flag.Parse()
 
@@ -55,6 +57,8 @@ func selectApp() (string, int, func()) {
 		return "IEXUpdate", setup.EnvToInt("IEX_PORT"), stocks.UpdateListingsDriver
 	case *iexIndexFlag:
 		return "IEXIndex", setup.EnvToInt("IEX_PORT"), stocks.UpdateIndex
+	case *textClean:
+		return "TextClean", 9998, text.App
 	case *logSummary:
 		return "LogSummary", 9999, setup.SummarizeLog
 	}

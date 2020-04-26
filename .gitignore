@@ -23,5 +23,6 @@ settings.json
 /configs
 /misc
 /logs
+/test
 logs/caterpillar.log
 *.log
