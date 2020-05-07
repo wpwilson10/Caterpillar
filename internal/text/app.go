@@ -27,7 +27,7 @@ func App() {
 	// Convert []byte to string and print to screen
 	str := string(content)
 
-	text := (Clean(&str))
+	text := Clean(&str)
 	Sentences(text)
 
 	// run summary

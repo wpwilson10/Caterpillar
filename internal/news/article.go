@@ -158,6 +158,7 @@ func publishedTime(t string, s *Source) null.Time {
 
 // Insert adds this article to the NewsArticle database table.
 // Performs no validation.
+// Updates articleID to real database value.
 func (article *Article) Insert(db *sqlx.DB) {
 	// Setup
 	var insertStmt string = `INSERT INTO NewsArticle (
