@@ -1,19 +1,17 @@
 package news
 
 import (
-	"bytes"
-	"net/http"
+	"context"
 	"os"
+	"strings"
 
-	"github.com/gorilla/rpc/v2/json2"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	"github.com/wpwilson10/caterpillar/internal/setup"
+	"github.com/wpwilson10/caterpillar/protobuf"
 )
-
-// Args contains the request values send to the newspaper3k python library
-type Args struct {
-	Link string
-}
 
 // Newspaper contains the data from the newspaper3k python library
 // PubDate will sometimes be an empty string
@@ -34,69 +32,61 @@ func NewNewspaper(source *Source) *Newspaper {
 		Info("Processing article")
 
 	// address to call for the newspaper3k application
-	var url string = os.Getenv("NEWSPAPER_HOST")
-
-	// Args object is what get sent out the RPC call
-	args := Args{
-		Link: source.Link,
-	}
-
-	// the return data
-	var result Newspaper
-
-	// Calls the extractNewspaper method on the reciever
-	message, err := json2.EncodeClientRequest("extractNewspaper", args)
+	var host string = os.Getenv("NEWSPAPER_HOST")
+	// connect to server
+	conn, err := grpc.Dial(host, grpc.WithInsecure())
 	if err != nil {
-		setup.LogCommon(err).
-			WithField("link", source.Link).
-			Warn("Failed EncodeClientRequest")
-		// stop to avoid null pointer issues
+		setup.LogCommon(err).Error("Failed gRPC Dial")
+
 		return nil
 	}
+	defer conn.Close()
 
-	// Setup an http request call
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(message))
-	if err != nil {
-		setup.LogCommon(err).
-			WithField("link", source.Link).
-			Warn("Failed http.NewRequest")
-		// stop to avoid null pointer issues
-		return nil
-	}
-	req.Header.Set("Content-Type", "application/json")
+	// create our client
+	client := protobuf.NewNewspaperClient(conn)
 
-	// Send the json rpc call using http
-	client := new(http.Client)
-	resp, err := client.Do(req)
+	// Make request
+	response, err := client.Request(context.Background(),
+		&protobuf.NewspaperRequest{Link: source.Link})
+
+	// handle possible failure codes
 	if err != nil {
-		// ignore common error where nothing is returned
-		if err == json2.ErrNullResult {
-			return nil
+		// get error code
+		if e, ok := status.FromError(err); ok {
+			// check if this is a known code, don't throw warning
+			if e.Code() == codes.Internal {
+				return nil
+			}
 		}
 
+		// else handle as an error
 		setup.LogCommon(err).
-			WithField("link", source.Link).
-			Warn("Failed client.Do")
-		// stop to avoid null pointer issues
+			WithField("Link", source.Link).
+			Warn("Failed gRPC request")
+
 		return nil
 	}
 
-	// Process the response into the ParsedNewspaper result type
-	defer resp.Body.Close()
-	err = json2.DecodeClientResponse(resp.Body, &result)
-	if err != nil {
-		// ignore common error where nothing is returned
-		if err == json2.ErrNullResult {
-			return nil
-		}
+	// perform link consistency checks
+	if strings.Compare(source.Link, response.GetLink()) != 0 {
+		setup.LogCommon(nil).
+			WithField("Link", source.Link).
+			WithField("response", response.GetLink).
+			Error("Links do not match")
 
-		setup.LogCommon(err).
-			WithField("link", source.Link).
-			Warn("Failed DecodeClientResponse")
-		// stop to avoid null pointer issues
+		return nil
+	}
+	// check that we got text to return
+	if len(response.GetTitle()) < 3 || len(response.GetText()) < 3 {
 		return nil
 	}
 
-	// everything is good
-	return &result
+	// Put into internal format
+	return &Newspaper{
+		Title:     response.GetTitle(),
+		Text:      response.GetText(),
+		Authors:   response.GetAuthors(),
+		Canonical: response.GetCanonical(),
+		PubDate:   response.GetPubdate(),
+	}
 }

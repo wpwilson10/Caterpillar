@@ -9,4 +9,4 @@ PRJ_FILE="/home/patrick/Documents/Projects/Caterpillar/"
 cd $PRJ_FILE
 
 # run data crawler with given flag
-sudo python3 ./internal/news/main.py
+sudo python3 ./cmd/main.py $1

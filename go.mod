@@ -7,6 +7,7 @@ require (
 	github.com/deckarep/golang-set v1.7.1 // indirect
 	github.com/go-redis/redis/v7 v7.2.0
 	github.com/gocarina/gocsv v0.0.0-20200324105150-9eab084b7a45
+	github.com/golang/protobuf v1.4.1
 	github.com/gorilla/rpc v1.2.0
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/joho/godotenv v1.3.0
@@ -24,7 +25,8 @@ require (
 	golang.org/x/net v0.0.0-20200324143707-d3edc9973b7e // indirect
 	golang.org/x/text v0.3.2
 	gonum.org/v1/gonum v0.7.0 // indirect
-	google.golang.org/grpc v1.29.1 // indirect
+	google.golang.org/grpc v1.29.1
+	google.golang.org/protobuf v1.22.0
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
 	gopkg.in/guregu/null.v3 v3.4.0
 	gopkg.in/jdkato/prose.v2 v2.0.0-20190814032740-822d591a158c

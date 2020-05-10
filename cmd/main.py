@@ -1,15 +1,19 @@
 #!/usr/bin/env python3
+"""Starts program and handles input"""
 
 import argparse
 from pathlib import Path
 import sys
 from dotenv import load_dotenv
 
-# do this so we can call files in another folder
+# import like this so we can call files in another folder
 sys.path.append('./')
 import internal_py.setup as setup
+import internal_py.newspaper as newspaper
 
 def main():
+    """Performs general setup and call appropriate application"""
+
     # load configuration
     env_path = Path('.') / 'configs' / '.env'
     load_dotenv(dotenv_path=env_path)
@@ -22,9 +26,13 @@ def main():
 
     print("LOL")
     print(flags)
+    newspaper.run()
+
 
 
 def select_app():
+    """Parses input flags to determine which program to run"""
+
     # Construct the argument parser
     parser = argparse.ArgumentParser()
 
@@ -35,8 +43,7 @@ def select_app():
 
     return flags
 
-
-# startup server
+# Default program entry point
 if __name__ == "__main__":
     main()
     

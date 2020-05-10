@@ -28,11 +28,6 @@ func App() {
 	var wg sync.WaitGroup
 	var numArticles uint64
 
-	// check if python script is running
-	if !setup.CheckOnce(setup.EnvToInt("PY_NEWSPAPER_PORT")) {
-		setup.LogCommon(nil).Fatal("Python app not running")
-	}
-
 	// get data from rss feeds
 	sources := SourceListFromRSS(articleSet)
 	// process each source
@@ -84,6 +79,19 @@ func Driver(source *Source, db *sqlx.DB, articleSet *redis.Set, blacklast *Black
 		fmt.Println("Black listed", source.Host, source.Source)
 		// skip
 		return nil
+	}
+
+	// check if python server is running
+	var wait bool = true
+	for wait == true {
+		if !setup.CheckOnce(setup.EnvToInt("PY_NEWSPAPER_PORT")) {
+			setup.LogCommon(nil).Warn("Newspaper python server not running")
+			// server should restart every 5 minutes
+			time.Sleep(time.Minute * 5)
+		} else {
+			// server is running
+			wait = false
+		}
 	}
 
 	// call newspaper3k to get data

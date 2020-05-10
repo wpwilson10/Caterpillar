@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 
 	"github.com/wpwilson10/caterpillar/internal/news"
 	"github.com/wpwilson10/caterpillar/internal/reddit"
@@ -33,6 +34,7 @@ func main() {
 // select app parses input arguments and returns an app's configuration
 func selectApp() (string, int, func()) {
 	// check command line arguments
+	testFlag := flag.Bool("test", false, "Test program")
 	redditBotFlag := flag.Bool("redditBot", false, "RedditBot")
 	redditAppFlag := flag.Bool("redditApp", false, "RedditApp")
 	newsAppFlag := flag.Bool("newsApp", false, "NewsApp")
@@ -45,6 +47,8 @@ func selectApp() (string, int, func()) {
 
 	// return appropriate app information
 	switch {
+	case *testFlag:
+		return "TesApp", 9997, test
 	case *redditBotFlag:
 		return "RedditBot", setup.EnvToInt("REDDIT_BOT_PORT"), reddit.BotApp
 	case *redditAppFlag:
@@ -66,4 +70,8 @@ func selectApp() (string, int, func()) {
 	// don't do anything on no match
 	setup.LogCommon(nil).Fatal("No matching input flag")
 	return "", 0, nil
+}
+
+func test() {
+	fmt.Println("Test App Called")
 }
