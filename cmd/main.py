@@ -10,6 +10,7 @@ from dotenv import load_dotenv
 sys.path.append('./')
 import internal_py.setup as setup
 import internal_py.newspaper as newspaper
+import internal_py.text as text
 
 def main():
     """Performs general setup and call appropriate application"""
@@ -24,9 +25,12 @@ def main():
     # run appropriate app
     flags = select_app()
 
-    print("LOL")
     print(flags)
-    newspaper.run()
+
+    if flags.news:
+        newspaper.run()
+    elif flags.text:
+        text.run()
 
 
 

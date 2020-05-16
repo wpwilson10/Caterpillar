@@ -48,7 +48,7 @@ func selectApp() (string, int, func()) {
 	// return appropriate app information
 	switch {
 	case *testFlag:
-		return "TesApp", 9997, test
+		return "TestApp", 9997, test
 	case *redditBotFlag:
 		return "RedditBot", setup.EnvToInt("REDDIT_BOT_PORT"), reddit.BotApp
 	case *redditAppFlag:

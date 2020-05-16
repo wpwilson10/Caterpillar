@@ -4,6 +4,7 @@ go 1.13
 
 require (
 	github.com/PuerkitoBio/goquery v1.5.1 // indirect
+	github.com/agnivade/levenshtein v1.0.3
 	github.com/deckarep/golang-set v1.7.1 // indirect
 	github.com/go-redis/redis/v7 v7.2.0
 	github.com/gocarina/gocsv v0.0.0-20200324105150-9eab084b7a45

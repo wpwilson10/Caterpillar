@@ -23,3 +23,19 @@ service Newspaper {
     string pubdate = 5;
     repeated string authors = 6;
   }
+
+// Defintion for text cleanup and summarization application
+service Text {
+  // Splits the text string into sentences
+  rpc Sentences (TextRequest) returns (SentenceReply) {}
+}
+
+// The request message contains text string to process
+message TextRequest {
+  string text = 1;
+}
+
+// The response message containing an array of sentences
+message SentenceReply {
+  repeated string sentences = 1;
+}

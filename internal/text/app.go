@@ -2,106 +2,66 @@ package text
 
 import (
 	"fmt"
-	"html"
-	"io/ioutil"
-	"log"
 
-	"github.com/microcosm-cc/bluemonday"
+	"github.com/wpwilson10/caterpillar/internal/news"
 	"github.com/wpwilson10/caterpillar/internal/setup"
-	"golang.org/x/text/unicode/norm"
-	"gopkg.in/neurosnap/sentences.v1"
-	"gopkg.in/neurosnap/sentences.v1/data"
 )
 
 func App() {
 	// connect to database
-	// db := setup.SQL()
+	db := setup.SQL()
 
-	// Read entire file content, giving us little control but
-	// making it very simple. No need to close the file.
-	content, err := ioutil.ReadFile("./test/foxnews1.txt")
+	// test article
+	target := news.Article{}
+	err := db.Get(&target, "SELECT * FROM NewsArticle WHERE article_id=$1", 2033)
+
 	if err != nil {
-		log.Fatal(err)
+		setup.LogCommon(err).Error("Get one article")
 	}
 
-	// Convert []byte to string and print to screen
-	str := string(content)
+	// we need something in this article to process
+	if target.Body.IsZero() {
+		setup.LogCommon(err).
+			WithField("articleID", target.ArticleID).
+			Warn("Article Body is empty")
+		return
+	}
 
-	text := Clean(&str)
-	Sentences(text)
+	body := target.Body.ValueOrZero()
+	// Do initialize normization
+	text := InitialClean(&body)
+	// Divide into sentences
+	targetSentences := Sentences(text)
 
-	// run summary
-	setup.LogCommon(nil).
-		WithField("RunTime", setup.RunTime().String()).
-		Info("RunSummary")
+	// Get articles published around the same time as the target article
+	articles := AdjacentArticles(db, &target)
+	// Only continue if we have a good number of articles to reference
+	if len(articles) < 10 {
+		return
+	}
+
+	// Iterate through the articles to collect sentences
+	checkSentences := []string{}
+	for _, each := range articles {
+		// sanity check
+		if !each.Body.IsZero() {
+			// process the sentences
+			body := each.Body.ValueOrZero()
+			// Do initialize normization
+			text := InitialClean(&body)
+			// Divide into sentences
+			newSentences := Sentences(text)
+			// save for later
+			checkSentences = append(checkSentences, newSentences...)
+		}
+	}
+
+	// Return only unique sentences
+	finalSentences := UniqueSentences(targetSentences, checkSentences)
+
+	for i, each := range finalSentences {
+		fmt.Println(i, " - ", each)
+	}
+
+	fmt.Println(len(finalSentences), len(targetSentences))
 }
-
-func Clean(input *string) *string {
-	// StrictPolicy strips all HTML elements (and their attributes)
-	text := bluemonday.StrictPolicy().Sanitize(*input)
-	if len(text) == 0 {
-		return nil
-	}
-
-	fmt.Println(text)
-	fmt.Println("LENGTH", len(text))
-	fmt.Println("**********")
-
-	// Unescape remaining HTML
-	text = html.UnescapeString(text)
-
-	fmt.Println(text)
-	fmt.Println("LENGTH", len(text))
-	fmt.Println("-----------")
-
-	// Normalize unicode, see https://blog.golang.org/normalization
-	// This may look like it does nothing,
-	// but it becomes obvious when you do a string len compare
-	text = norm.NFKC.String(text)
-
-	fmt.Println(text)
-	fmt.Println("LENGTH", len(text))
-	fmt.Println("===========")
-
-	return &text
-}
-
-func Sentences(input *string) {
-
-	// Compiling language specific data into a binary file can be accomplished
-	// by using `make <lang>` and then loading the `json` data:
-	b, _ := data.Asset("data/english.json")
-
-	// load the training data
-	training, _ := sentences.LoadTraining(b)
-
-	// create the default sentence tokenizer
-	tokenizer := sentences.NewSentenceTokenizer(training)
-
-	sentences := tokenizer.Tokenize(*input)
-
-	for i, s := range sentences {
-		fmt.Println(i, s.Text)
-	}
-}
-
-/*
-func Sentences(input *string) []*string {
-	// Parse text into pieces
-	doc, err := prose.NewDocument(*input)
-	if err != nil {
-		setup.LogCommon(err).Warn("Failed Prose.NewDocument")
-		return nil
-	}
-
-	out := []*string{}
-
-	// Iterate over the doc's sentences:
-	for i, sent := range doc.Sentences() {
-		fmt.Println(i, sent.Text)
-		out = append(out, &sent.Text)
-	}
-
-	return out
-}
-*/

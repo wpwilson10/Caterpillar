@@ -10,17 +10,9 @@ from .setup import is_open, APP_LOG
 from . import caterpillar_pb2
 from . import caterpillar_pb2_grpc
 
-
-def extract_newspaper(link):
+def extract_newspaper(link, config):
     '''extract_newspaper parses an article from the given link'''
     try:
-        # setup configuration
-        config = Config()
-        config.browser_user_agent = os.getenv("PY_NEWSPAPER_USER_AGENT")
-        config.memoize_articles = False
-        config.fetch_images = False
-        config.follow_meta_refresh = True
-
         # setup article
         article = Article(link, config=config)
 
@@ -67,14 +59,18 @@ def extract_newspaper(link):
 class NewspaperServicer(caterpillar_pb2_grpc.NewspaperServicer):
     """Provides methods that implement functionality of Newspaper server."""
 
-    # Don't need to initialize anything
     def __init__(self):
-        pass
+        # setup newspaper configuration
+        self.config = Config()
+        self.config.browser_user_agent = os.getenv("PY_NEWSPAPER_USER_AGENT")
+        self.config.memoize_articles = False
+        self.config.fetch_images = False
+        self.config.follow_meta_refresh = True
 
     # Main server application call
     def Request(self, request, context):
         # call newspaper library
-        response = extract_newspaper(request.link)
+        response = extract_newspaper(link=request.link, config=self.config)
         # check if we failed
         if response is None:
             context.set_code(grpc.StatusCode.INTERNAL)
