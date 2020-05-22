@@ -7,6 +7,7 @@ import (
 	"github.com/wpwilson10/caterpillar/internal/news"
 	"github.com/wpwilson10/caterpillar/internal/reddit"
 	"github.com/wpwilson10/caterpillar/internal/setup"
+	"github.com/wpwilson10/caterpillar/internal/setup/logsummary"
 	"github.com/wpwilson10/caterpillar/internal/stocks"
 	"github.com/wpwilson10/caterpillar/internal/text"
 )
@@ -64,7 +65,7 @@ func selectApp() (string, int, func()) {
 	case *textClean:
 		return "TextClean", 9998, text.App
 	case *logSummary:
-		return "LogSummary", 9999, setup.SummarizeLog
+		return "LogSummary", 9999, logsummary.SummarizeLog
 	}
 
 	// don't do anything on no match

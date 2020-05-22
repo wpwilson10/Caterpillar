@@ -1,9 +1,11 @@
 package setup
 
-import "gopkg.in/gomail.v2"
+import (
+	"gopkg.in/gomail.v2"
+)
 
-// Email sends a message to my email with the given subject and html body
-func Email(subject string, body string) {
+// SendEmail sends a message to my email with the given subject and html body
+func SendEmail(subject string, body string) {
 	// setup email context
 	m := gomail.NewMessage()
 	m.SetHeader("From", "PatrickWilsonSR0@gmail.com")
