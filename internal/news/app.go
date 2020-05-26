@@ -81,18 +81,8 @@ func Driver(source *Source, db *sqlx.DB, articleSet *redis.Set, blacklast *Black
 		return nil
 	}
 
-	// check if python server is running
-	var wait bool = true
-	for wait == true {
-		if !setup.CheckOnce(setup.EnvToInt("PY_NEWSPAPER_PORT")) {
-			setup.LogCommon(nil).Warn("Newspaper python server not running")
-			// server should restart every 5 minutes
-			time.Sleep(time.Minute * 5)
-		} else {
-			// server is running
-			wait = false
-		}
-	}
+	// Make sure the server is running
+	setup.CheckPythonServer()
 
 	// call newspaper3k to get data
 	newspaper := NewNewspaper(source)

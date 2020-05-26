@@ -9,8 +9,7 @@ from dotenv import load_dotenv
 # import like this so we can call files in another folder
 sys.path.append('./')
 import internal_py.setup as setup
-import internal_py.newspaper as newspaper
-import internal_py.text as text
+import internal_py.caterpillar as caterpillar
 
 def main():
     """Performs general setup and call appropriate application"""
@@ -22,18 +21,12 @@ def main():
     # setup logger
     setup.setup_logger()
 
-    # run appropriate app
-    flags = select_app()
-
-    print(flags)
-
-    if flags.news:
-        newspaper.run()
-    elif flags.text:
-        text.run()
+    # start up the server and run forever
+    caterpillar.run()
 
 
 
+# Not current use
 def select_app():
     """Parses input flags to determine which program to run"""
 

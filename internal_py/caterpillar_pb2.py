@@ -18,7 +18,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='caterpillar',
   syntax='proto3',
   serialized_options=b'Z*github.com/wpwilson10/caterpillar/protobuf',
-  serialized_pb=b'\n\x11\x63\x61terpillar.proto\x12\x0b\x63\x61terpillar\" \n\x10NewspaperRequest\x12\x0c\n\x04link\x18\x01 \x01(\t\"p\n\x0eNewspaperReply\x12\x0c\n\x04link\x18\x01 \x01(\t\x12\r\n\x05title\x18\x02 \x01(\t\x12\x0c\n\x04text\x18\x03 \x01(\t\x12\x11\n\tcanonical\x18\x04 \x01(\t\x12\x0f\n\x07pubdate\x18\x05 \x01(\t\x12\x0f\n\x07\x61uthors\x18\x06 \x03(\t\"\x1b\n\x0bTextRequest\x12\x0c\n\x04text\x18\x01 \x01(\t\"\"\n\rSentenceReply\x12\x11\n\tsentences\x18\x01 \x03(\t2T\n\tNewspaper\x12G\n\x07Request\x12\x1d.caterpillar.NewspaperRequest\x1a\x1b.caterpillar.NewspaperReply\"\x00\x32K\n\x04Text\x12\x43\n\tSentences\x12\x18.caterpillar.TextRequest\x1a\x1a.caterpillar.SentenceReply\"\x00\x42,Z*github.com/wpwilson10/caterpillar/protobufb\x06proto3'
+  serialized_pb=b'\n\x11\x63\x61terpillar.proto\x12\x0b\x63\x61terpillar\" \n\x10NewspaperRequest\x12\x0c\n\x04link\x18\x01 \x01(\t\"p\n\x0eNewspaperReply\x12\x0c\n\x04link\x18\x01 \x01(\t\x12\r\n\x05title\x18\x02 \x01(\t\x12\x0c\n\x04text\x18\x03 \x01(\t\x12\x11\n\tcanonical\x18\x04 \x01(\t\x12\x0f\n\x07pubdate\x18\x05 \x01(\t\x12\x0f\n\x07\x61uthors\x18\x06 \x03(\t\"\x1b\n\x0bTextRequest\x12\x0c\n\x04text\x18\x01 \x01(\t\"\"\n\rSentenceReply\x12\x11\n\tsentences\x18\x01 \x03(\t2\x9d\x01\n\x0b\x43\x61terpillar\x12I\n\tNewspaper\x12\x1d.caterpillar.NewspaperRequest\x1a\x1b.caterpillar.NewspaperReply\"\x00\x12\x43\n\tSentences\x12\x18.caterpillar.TextRequest\x1a\x1a.caterpillar.SentenceReply\"\x00\x42,Z*github.com/wpwilson10/caterpillar/protobufb\x06proto3'
 )
 
 
@@ -219,51 +219,36 @@ _sym_db.RegisterMessage(SentenceReply)
 
 DESCRIPTOR._options = None
 
-_NEWSPAPER = _descriptor.ServiceDescriptor(
-  name='Newspaper',
-  full_name='caterpillar.Newspaper',
+_CATERPILLAR = _descriptor.ServiceDescriptor(
+  name='Caterpillar',
+  full_name='caterpillar.Caterpillar',
   file=DESCRIPTOR,
   index=0,
   serialized_options=None,
-  serialized_start=247,
-  serialized_end=331,
+  serialized_start=248,
+  serialized_end=405,
   methods=[
   _descriptor.MethodDescriptor(
-    name='Request',
-    full_name='caterpillar.Newspaper.Request',
+    name='Newspaper',
+    full_name='caterpillar.Caterpillar.Newspaper',
     index=0,
     containing_service=None,
     input_type=_NEWSPAPERREQUEST,
     output_type=_NEWSPAPERREPLY,
     serialized_options=None,
   ),
-])
-_sym_db.RegisterServiceDescriptor(_NEWSPAPER)
-
-DESCRIPTOR.services_by_name['Newspaper'] = _NEWSPAPER
-
-
-_TEXT = _descriptor.ServiceDescriptor(
-  name='Text',
-  full_name='caterpillar.Text',
-  file=DESCRIPTOR,
-  index=1,
-  serialized_options=None,
-  serialized_start=333,
-  serialized_end=408,
-  methods=[
   _descriptor.MethodDescriptor(
     name='Sentences',
-    full_name='caterpillar.Text.Sentences',
-    index=0,
+    full_name='caterpillar.Caterpillar.Sentences',
+    index=1,
     containing_service=None,
     input_type=_TEXTREQUEST,
     output_type=_SENTENCEREPLY,
     serialized_options=None,
   ),
 ])
-_sym_db.RegisterServiceDescriptor(_TEXT)
+_sym_db.RegisterServiceDescriptor(_CATERPILLAR)
 
-DESCRIPTOR.services_by_name['Text'] = _TEXT
+DESCRIPTOR.services_by_name['Caterpillar'] = _CATERPILLAR
 
 # @@protoc_insertion_point(module_scope)

@@ -16,7 +16,7 @@ def setup_logger():
     # create file handler which logs
     log_path = os.getenv("LOG_FILEPATH") +"pylog.log"
     file_handler = logging.FileHandler(log_path)
-    file_handler.setLevel(logging.DEBUG)
+    file_handler.setLevel(logging.INFO)
     # create formatter and add it to the handlers
     formatter = logging.Formatter('%(asctime)s -  %(levelname)s - %(name)s - %(message)s')
     file_handler.setFormatter(formatter)

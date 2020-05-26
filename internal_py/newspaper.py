@@ -1,14 +1,9 @@
 #!/usr/bin/env python3
 '''Uses the newspaper3k library to collect and parse article data'''
-import os
-from concurrent import futures
 
-import grpc
-from newspaper import Article, Config
-
-from .setup import is_open, APP_LOG
+from newspaper import Article
 from . import caterpillar_pb2
-from . import caterpillar_pb2_grpc
+from .setup import APP_LOG
 
 def extract_newspaper(link, config):
     '''extract_newspaper parses an article from the given link'''
@@ -55,43 +50,3 @@ def extract_newspaper(link, config):
         return response
     except (Exception) as error:
         APP_LOG.error(error)
-
-class NewspaperServicer(caterpillar_pb2_grpc.NewspaperServicer):
-    """Provides methods that implement functionality of Newspaper server."""
-
-    def __init__(self):
-        # setup newspaper configuration
-        self.config = Config()
-        self.config.browser_user_agent = os.getenv("PY_NEWSPAPER_USER_AGENT")
-        self.config.memoize_articles = False
-        self.config.fetch_images = False
-        self.config.follow_meta_refresh = True
-
-    # Main server application call
-    def Request(self, request, context):
-        # call newspaper library
-        response = extract_newspaper(link=request.link, config=self.config)
-        # check if we failed
-        if response is None:
-            context.set_code(grpc.StatusCode.INTERNAL)
-            return caterpillar_pb2.NewspaperReply()
-        # otherwise return data
-        return response
-
-def run():
-    '''Run newspaper application server'''
-     # port to use with app
-    port = int(os.getenv("PY_NEWSPAPER_PORT"))
-
-    # if port is not in use, start app
-    if is_open("localhost", port):
-        # setup server
-        server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-        caterpillar_pb2_grpc.add_NewspaperServicer_to_server(
-            NewspaperServicer(), server)
-        server.add_insecure_port(os.getenv("NEWSPAPER_HOST"))
-        # run
-        server.start()
-        APP_LOG.info("Newspaper server starting")
-        # timeout after 3 days (arbitrary)
-        server.wait_for_termination(timeout=60.0*60*24*3)

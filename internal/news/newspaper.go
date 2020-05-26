@@ -32,7 +32,7 @@ func NewNewspaper(source *Source) *Newspaper {
 		Info("Processing article")
 
 	// address to call for the newspaper3k application
-	var host string = os.Getenv("NEWSPAPER_HOST")
+	var host string = os.Getenv("PY_CATERPILLAR_HOST")
 	// connect to server
 	conn, err := grpc.Dial(host, grpc.WithInsecure())
 	if err != nil {
@@ -43,10 +43,10 @@ func NewNewspaper(source *Source) *Newspaper {
 	defer conn.Close()
 
 	// create our client
-	client := protobuf.NewNewspaperClient(conn)
+	client := protobuf.NewCaterpillarClient(conn)
 
 	// Make request
-	response, err := client.Request(context.Background(),
+	response, err := client.Newspaper(context.Background(),
 		&protobuf.NewspaperRequest{Link: source.Link})
 
 	// handle possible failure codes

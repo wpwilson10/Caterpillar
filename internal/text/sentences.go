@@ -16,7 +16,7 @@ import (
 // External call so it can be slow.
 func Sentences(text *string) []string {
 	// address to call for the text application
-	var host string = os.Getenv("TEXT_HOST")
+	var host string = os.Getenv("PY_CATERPILLAR_HOST")
 	// connect to server
 	conn, err := grpc.Dial(host, grpc.WithInsecure())
 	if err != nil {
@@ -27,7 +27,7 @@ func Sentences(text *string) []string {
 	defer conn.Close()
 
 	// create our client
-	client := protobuf.NewTextClient(conn)
+	client := protobuf.NewCaterpillarClient(conn)
 
 	// Make request
 	response, err := client.Sentences(context.Background(),

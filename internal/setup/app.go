@@ -23,3 +23,17 @@ func RunTime() time.Duration {
 	now := time.Now()
 	return now.Sub(startTime)
 }
+
+// CheckPythonServer blocks the function call until the python server is up.
+func CheckPythonServer() {
+	// check if python server is running
+	var count int = 1
+	for !CheckOnce(EnvToInt("PY_CATERPILLAR_PORT")) {
+		LogCommon(nil).
+			WithField("count", count).
+			Warn("Caterpillar python server not running")
+		// server should restart every 5 minutes
+		time.Sleep(time.Minute * 5)
+		count = count + 1
+	}
+}

@@ -4,8 +4,8 @@ import grpc
 from . import caterpillar_pb2 as caterpillar__pb2
 
 
-class NewspaperStub(object):
-    """Defintion for newspaper3k application
+class CaterpillarStub(object):
+    """Defintion for Caterpillar python applications
     """
 
     def __init__(self, channel):
@@ -14,80 +14,28 @@ class NewspaperStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.Request = channel.unary_unary(
-                '/caterpillar.Newspaper/Request',
+        self.Newspaper = channel.unary_unary(
+                '/caterpillar.Caterpillar/Newspaper',
                 request_serializer=caterpillar__pb2.NewspaperRequest.SerializeToString,
                 response_deserializer=caterpillar__pb2.NewspaperReply.FromString,
                 )
-
-
-class NewspaperServicer(object):
-    """Defintion for newspaper3k application
-    """
-
-    def Request(self, request, context):
-        """Sends a link for newspaper3k extraction
-        """
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
-
-
-def add_NewspaperServicer_to_server(servicer, server):
-    rpc_method_handlers = {
-            'Request': grpc.unary_unary_rpc_method_handler(
-                    servicer.Request,
-                    request_deserializer=caterpillar__pb2.NewspaperRequest.FromString,
-                    response_serializer=caterpillar__pb2.NewspaperReply.SerializeToString,
-            ),
-    }
-    generic_handler = grpc.method_handlers_generic_handler(
-            'caterpillar.Newspaper', rpc_method_handlers)
-    server.add_generic_rpc_handlers((generic_handler,))
-
-
- # This class is part of an EXPERIMENTAL API.
-class Newspaper(object):
-    """Defintion for newspaper3k application
-    """
-
-    @staticmethod
-    def Request(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/caterpillar.Newspaper/Request',
-            caterpillar__pb2.NewspaperRequest.SerializeToString,
-            caterpillar__pb2.NewspaperReply.FromString,
-            options, channel_credentials,
-            call_credentials, compression, wait_for_ready, timeout, metadata)
-
-
-class TextStub(object):
-    """Defintion for text cleanup and summarization application
-    """
-
-    def __init__(self, channel):
-        """Constructor.
-
-        Args:
-            channel: A grpc.Channel.
-        """
         self.Sentences = channel.unary_unary(
-                '/caterpillar.Text/Sentences',
+                '/caterpillar.Caterpillar/Sentences',
                 request_serializer=caterpillar__pb2.TextRequest.SerializeToString,
                 response_deserializer=caterpillar__pb2.SentenceReply.FromString,
                 )
 
 
-class TextServicer(object):
-    """Defintion for text cleanup and summarization application
+class CaterpillarServicer(object):
+    """Defintion for Caterpillar python applications
     """
+
+    def Newspaper(self, request, context):
+        """Sends a link for newspaper3k extraction
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
 
     def Sentences(self, request, context):
         """Splits the text string into sentences
@@ -97,8 +45,13 @@ class TextServicer(object):
         raise NotImplementedError('Method not implemented!')
 
 
-def add_TextServicer_to_server(servicer, server):
+def add_CaterpillarServicer_to_server(servicer, server):
     rpc_method_handlers = {
+            'Newspaper': grpc.unary_unary_rpc_method_handler(
+                    servicer.Newspaper,
+                    request_deserializer=caterpillar__pb2.NewspaperRequest.FromString,
+                    response_serializer=caterpillar__pb2.NewspaperReply.SerializeToString,
+            ),
             'Sentences': grpc.unary_unary_rpc_method_handler(
                     servicer.Sentences,
                     request_deserializer=caterpillar__pb2.TextRequest.FromString,
@@ -106,14 +59,30 @@ def add_TextServicer_to_server(servicer, server):
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'caterpillar.Text', rpc_method_handlers)
+            'caterpillar.Caterpillar', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
 
 
  # This class is part of an EXPERIMENTAL API.
-class Text(object):
-    """Defintion for text cleanup and summarization application
+class Caterpillar(object):
+    """Defintion for Caterpillar python applications
     """
+
+    @staticmethod
+    def Newspaper(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/caterpillar.Caterpillar/Newspaper',
+            caterpillar__pb2.NewspaperRequest.SerializeToString,
+            caterpillar__pb2.NewspaperReply.FromString,
+            options, channel_credentials,
+            call_credentials, compression, wait_for_ready, timeout, metadata)
 
     @staticmethod
     def Sentences(request,
@@ -125,7 +94,7 @@ class Text(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/caterpillar.Text/Sentences',
+        return grpc.experimental.unary_unary(request, target, '/caterpillar.Caterpillar/Sentences',
             caterpillar__pb2.TextRequest.SerializeToString,
             caterpillar__pb2.SentenceReply.FromString,
             options, channel_credentials,

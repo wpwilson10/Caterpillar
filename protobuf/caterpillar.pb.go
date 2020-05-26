@@ -283,21 +283,21 @@ var file_caterpillar_proto_rawDesc = []byte{
 	0x78, 0x74, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x74, 0x65, 0x78, 0x74, 0x22, 0x2d,
 	0x0a, 0x0d, 0x53, 0x65, 0x6e, 0x74, 0x65, 0x6e, 0x63, 0x65, 0x52, 0x65, 0x70, 0x6c, 0x79, 0x12,
 	0x1c, 0x0a, 0x09, 0x73, 0x65, 0x6e, 0x74, 0x65, 0x6e, 0x63, 0x65, 0x73, 0x18, 0x01, 0x20, 0x03,
-	0x28, 0x09, 0x52, 0x09, 0x73, 0x65, 0x6e, 0x74, 0x65, 0x6e, 0x63, 0x65, 0x73, 0x32, 0x54, 0x0a,
-	0x09, 0x4e, 0x65, 0x77, 0x73, 0x70, 0x61, 0x70, 0x65, 0x72, 0x12, 0x47, 0x0a, 0x07, 0x52, 0x65,
-	0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x1d, 0x2e, 0x63, 0x61, 0x74, 0x65, 0x72, 0x70, 0x69, 0x6c,
-	0x6c, 0x61, 0x72, 0x2e, 0x4e, 0x65, 0x77, 0x73, 0x70, 0x61, 0x70, 0x65, 0x72, 0x52, 0x65, 0x71,
-	0x75, 0x65, 0x73, 0x74, 0x1a, 0x1b, 0x2e, 0x63, 0x61, 0x74, 0x65, 0x72, 0x70, 0x69, 0x6c, 0x6c,
-	0x61, 0x72, 0x2e, 0x4e, 0x65, 0x77, 0x73, 0x70, 0x61, 0x70, 0x65, 0x72, 0x52, 0x65, 0x70, 0x6c,
-	0x79, 0x22, 0x00, 0x32, 0x4b, 0x0a, 0x04, 0x54, 0x65, 0x78, 0x74, 0x12, 0x43, 0x0a, 0x09, 0x53,
-	0x65, 0x6e, 0x74, 0x65, 0x6e, 0x63, 0x65, 0x73, 0x12, 0x18, 0x2e, 0x63, 0x61, 0x74, 0x65, 0x72,
-	0x70, 0x69, 0x6c, 0x6c, 0x61, 0x72, 0x2e, 0x54, 0x65, 0x78, 0x74, 0x52, 0x65, 0x71, 0x75, 0x65,
-	0x73, 0x74, 0x1a, 0x1a, 0x2e, 0x63, 0x61, 0x74, 0x65, 0x72, 0x70, 0x69, 0x6c, 0x6c, 0x61, 0x72,
-	0x2e, 0x53, 0x65, 0x6e, 0x74, 0x65, 0x6e, 0x63, 0x65, 0x52, 0x65, 0x70, 0x6c, 0x79, 0x22, 0x00,
-	0x42, 0x2c, 0x5a, 0x2a, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x77,
-	0x70, 0x77, 0x69, 0x6c, 0x73, 0x6f, 0x6e, 0x31, 0x30, 0x2f, 0x63, 0x61, 0x74, 0x65, 0x72, 0x70,
-	0x69, 0x6c, 0x6c, 0x61, 0x72, 0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x62, 0x06,
-	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x28, 0x09, 0x52, 0x09, 0x73, 0x65, 0x6e, 0x74, 0x65, 0x6e, 0x63, 0x65, 0x73, 0x32, 0x9d, 0x01,
+	0x0a, 0x0b, 0x43, 0x61, 0x74, 0x65, 0x72, 0x70, 0x69, 0x6c, 0x6c, 0x61, 0x72, 0x12, 0x49, 0x0a,
+	0x09, 0x4e, 0x65, 0x77, 0x73, 0x70, 0x61, 0x70, 0x65, 0x72, 0x12, 0x1d, 0x2e, 0x63, 0x61, 0x74,
+	0x65, 0x72, 0x70, 0x69, 0x6c, 0x6c, 0x61, 0x72, 0x2e, 0x4e, 0x65, 0x77, 0x73, 0x70, 0x61, 0x70,
+	0x65, 0x72, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x1b, 0x2e, 0x63, 0x61, 0x74, 0x65,
+	0x72, 0x70, 0x69, 0x6c, 0x6c, 0x61, 0x72, 0x2e, 0x4e, 0x65, 0x77, 0x73, 0x70, 0x61, 0x70, 0x65,
+	0x72, 0x52, 0x65, 0x70, 0x6c, 0x79, 0x22, 0x00, 0x12, 0x43, 0x0a, 0x09, 0x53, 0x65, 0x6e, 0x74,
+	0x65, 0x6e, 0x63, 0x65, 0x73, 0x12, 0x18, 0x2e, 0x63, 0x61, 0x74, 0x65, 0x72, 0x70, 0x69, 0x6c,
+	0x6c, 0x61, 0x72, 0x2e, 0x54, 0x65, 0x78, 0x74, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a,
+	0x1a, 0x2e, 0x63, 0x61, 0x74, 0x65, 0x72, 0x70, 0x69, 0x6c, 0x6c, 0x61, 0x72, 0x2e, 0x53, 0x65,
+	0x6e, 0x74, 0x65, 0x6e, 0x63, 0x65, 0x52, 0x65, 0x70, 0x6c, 0x79, 0x22, 0x00, 0x42, 0x2c, 0x5a,
+	0x2a, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x77, 0x70, 0x77, 0x69,
+	0x6c, 0x73, 0x6f, 0x6e, 0x31, 0x30, 0x2f, 0x63, 0x61, 0x74, 0x65, 0x72, 0x70, 0x69, 0x6c, 0x6c,
+	0x61, 0x72, 0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x62, 0x06, 0x70, 0x72, 0x6f,
+	0x74, 0x6f, 0x33,
 }
 
 var (
@@ -320,10 +320,10 @@ var file_caterpillar_proto_goTypes = []interface{}{
 	(*SentenceReply)(nil),    // 3: caterpillar.SentenceReply
 }
 var file_caterpillar_proto_depIdxs = []int32{
-	0, // 0: caterpillar.Newspaper.Request:input_type -> caterpillar.NewspaperRequest
-	2, // 1: caterpillar.Text.Sentences:input_type -> caterpillar.TextRequest
-	1, // 2: caterpillar.Newspaper.Request:output_type -> caterpillar.NewspaperReply
-	3, // 3: caterpillar.Text.Sentences:output_type -> caterpillar.SentenceReply
+	0, // 0: caterpillar.Caterpillar.Newspaper:input_type -> caterpillar.NewspaperRequest
+	2, // 1: caterpillar.Caterpillar.Sentences:input_type -> caterpillar.TextRequest
+	1, // 2: caterpillar.Caterpillar.Newspaper:output_type -> caterpillar.NewspaperReply
+	3, // 3: caterpillar.Caterpillar.Sentences:output_type -> caterpillar.SentenceReply
 	2, // [2:4] is the sub-list for method output_type
 	0, // [0:2] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
@@ -394,7 +394,7 @@ func file_caterpillar_proto_init() {
 			NumEnums:      0,
 			NumMessages:   4,
 			NumExtensions: 0,
-			NumServices:   2,
+			NumServices:   1,
 		},
 		GoTypes:           file_caterpillar_proto_goTypes,
 		DependencyIndexes: file_caterpillar_proto_depIdxs,
@@ -414,148 +414,112 @@ var _ grpc.ClientConnInterface
 // is compatible with the grpc package it is being compiled against.
 const _ = grpc.SupportPackageIsVersion6
 
-// NewspaperClient is the client API for Newspaper service.
+// CaterpillarClient is the client API for Caterpillar service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
-type NewspaperClient interface {
+type CaterpillarClient interface {
 	// Sends a link for newspaper3k extraction
-	Request(ctx context.Context, in *NewspaperRequest, opts ...grpc.CallOption) (*NewspaperReply, error)
+	Newspaper(ctx context.Context, in *NewspaperRequest, opts ...grpc.CallOption) (*NewspaperReply, error)
+	// Splits the text string into sentences
+	Sentences(ctx context.Context, in *TextRequest, opts ...grpc.CallOption) (*SentenceReply, error)
 }
 
-type newspaperClient struct {
+type caterpillarClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewNewspaperClient(cc grpc.ClientConnInterface) NewspaperClient {
-	return &newspaperClient{cc}
+func NewCaterpillarClient(cc grpc.ClientConnInterface) CaterpillarClient {
+	return &caterpillarClient{cc}
 }
 
-func (c *newspaperClient) Request(ctx context.Context, in *NewspaperRequest, opts ...grpc.CallOption) (*NewspaperReply, error) {
+func (c *caterpillarClient) Newspaper(ctx context.Context, in *NewspaperRequest, opts ...grpc.CallOption) (*NewspaperReply, error) {
 	out := new(NewspaperReply)
-	err := c.cc.Invoke(ctx, "/caterpillar.Newspaper/Request", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/caterpillar.Caterpillar/Newspaper", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// NewspaperServer is the server API for Newspaper service.
-type NewspaperServer interface {
+func (c *caterpillarClient) Sentences(ctx context.Context, in *TextRequest, opts ...grpc.CallOption) (*SentenceReply, error) {
+	out := new(SentenceReply)
+	err := c.cc.Invoke(ctx, "/caterpillar.Caterpillar/Sentences", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// CaterpillarServer is the server API for Caterpillar service.
+type CaterpillarServer interface {
 	// Sends a link for newspaper3k extraction
-	Request(context.Context, *NewspaperRequest) (*NewspaperReply, error)
+	Newspaper(context.Context, *NewspaperRequest) (*NewspaperReply, error)
+	// Splits the text string into sentences
+	Sentences(context.Context, *TextRequest) (*SentenceReply, error)
 }
 
-// UnimplementedNewspaperServer can be embedded to have forward compatible implementations.
-type UnimplementedNewspaperServer struct {
+// UnimplementedCaterpillarServer can be embedded to have forward compatible implementations.
+type UnimplementedCaterpillarServer struct {
 }
 
-func (*UnimplementedNewspaperServer) Request(context.Context, *NewspaperRequest) (*NewspaperReply, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Request not implemented")
+func (*UnimplementedCaterpillarServer) Newspaper(context.Context, *NewspaperRequest) (*NewspaperReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Newspaper not implemented")
+}
+func (*UnimplementedCaterpillarServer) Sentences(context.Context, *TextRequest) (*SentenceReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Sentences not implemented")
 }
 
-func RegisterNewspaperServer(s *grpc.Server, srv NewspaperServer) {
-	s.RegisterService(&_Newspaper_serviceDesc, srv)
+func RegisterCaterpillarServer(s *grpc.Server, srv CaterpillarServer) {
+	s.RegisterService(&_Caterpillar_serviceDesc, srv)
 }
 
-func _Newspaper_Request_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Caterpillar_Newspaper_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(NewspaperRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(NewspaperServer).Request(ctx, in)
+		return srv.(CaterpillarServer).Newspaper(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/caterpillar.Newspaper/Request",
+		FullMethod: "/caterpillar.Caterpillar/Newspaper",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(NewspaperServer).Request(ctx, req.(*NewspaperRequest))
+		return srv.(CaterpillarServer).Newspaper(ctx, req.(*NewspaperRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-var _Newspaper_serviceDesc = grpc.ServiceDesc{
-	ServiceName: "caterpillar.Newspaper",
-	HandlerType: (*NewspaperServer)(nil),
-	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "Request",
-			Handler:    _Newspaper_Request_Handler,
-		},
-	},
-	Streams:  []grpc.StreamDesc{},
-	Metadata: "caterpillar.proto",
-}
-
-// TextClient is the client API for Text service.
-//
-// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
-type TextClient interface {
-	// Splits the text string into sentences
-	Sentences(ctx context.Context, in *TextRequest, opts ...grpc.CallOption) (*SentenceReply, error)
-}
-
-type textClient struct {
-	cc grpc.ClientConnInterface
-}
-
-func NewTextClient(cc grpc.ClientConnInterface) TextClient {
-	return &textClient{cc}
-}
-
-func (c *textClient) Sentences(ctx context.Context, in *TextRequest, opts ...grpc.CallOption) (*SentenceReply, error) {
-	out := new(SentenceReply)
-	err := c.cc.Invoke(ctx, "/caterpillar.Text/Sentences", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-// TextServer is the server API for Text service.
-type TextServer interface {
-	// Splits the text string into sentences
-	Sentences(context.Context, *TextRequest) (*SentenceReply, error)
-}
-
-// UnimplementedTextServer can be embedded to have forward compatible implementations.
-type UnimplementedTextServer struct {
-}
-
-func (*UnimplementedTextServer) Sentences(context.Context, *TextRequest) (*SentenceReply, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Sentences not implemented")
-}
-
-func RegisterTextServer(s *grpc.Server, srv TextServer) {
-	s.RegisterService(&_Text_serviceDesc, srv)
-}
-
-func _Text_Sentences_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Caterpillar_Sentences_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(TextRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TextServer).Sentences(ctx, in)
+		return srv.(CaterpillarServer).Sentences(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/caterpillar.Text/Sentences",
+		FullMethod: "/caterpillar.Caterpillar/Sentences",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TextServer).Sentences(ctx, req.(*TextRequest))
+		return srv.(CaterpillarServer).Sentences(ctx, req.(*TextRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-var _Text_serviceDesc = grpc.ServiceDesc{
-	ServiceName: "caterpillar.Text",
-	HandlerType: (*TextServer)(nil),
+var _Caterpillar_serviceDesc = grpc.ServiceDesc{
+	ServiceName: "caterpillar.Caterpillar",
+	HandlerType: (*CaterpillarServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
+			MethodName: "Newspaper",
+			Handler:    _Caterpillar_Newspaper_Handler,
+		},
+		{
 			MethodName: "Sentences",
-			Handler:    _Text_Sentences_Handler,
+			Handler:    _Caterpillar_Sentences_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

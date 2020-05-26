@@ -36,7 +36,7 @@ func App() {
 	// Get articles published around the same time as the target article
 	articles := AdjacentArticles(db, &target)
 	// Only continue if we have a good number of articles to reference
-	if len(articles) < 10 {
+	if len(articles) < setup.EnvToInt("TEXT_ARTICLE_CUTOFF") {
 		return
 	}
 
