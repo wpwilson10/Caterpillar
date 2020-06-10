@@ -9,6 +9,8 @@ service Caterpillar {
     rpc Newspaper (NewspaperRequest) returns (NewspaperReply) {}
      // Splits the text string into sentences
     rpc Sentences (TextRequest) returns (SentenceReply) {}
+     // Returns a text summary and keywords
+     rpc Summary (TextRequest) returns (SummaryReply) {}
   }
   
   // The request message contains the url link to extract
@@ -34,4 +36,10 @@ message TextRequest {
 // The response message containing an array of sentences
 message SentenceReply {
   repeated string sentences = 1;
+}
+
+// The response message containing summarized text and keywords
+message SummaryReply {
+  string summary = 1;
+  repeated string keywords = 2;
 }

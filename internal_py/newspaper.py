@@ -1,12 +1,25 @@
 #!/usr/bin/env python3
 '''Uses the newspaper3k library to collect and parse article data'''
 
+import grpc
 from newspaper import Article
+
 from . import caterpillar_pb2
 from .setup import APP_LOG
 
-def extract_newspaper(link, config):
-    '''extract_newspaper parses an article from the given link'''
+def newspaper(self, request, context):
+    '''newspaper handles caterpillar calls to newspaper3k library'''
+    # call newspaper library
+    response = extract(link=request.link, config=self.config)
+    # check if we failed
+    if response is None:
+        context.set_code(grpc.StatusCode.INTERNAL)
+        return caterpillar_pb2.NewspaperReply()
+    # otherwise return data
+    return response
+
+def extract(link, config):
+    '''extract parses an article from the given link'''
     try:
         # setup article
         article = Article(link, config=config)

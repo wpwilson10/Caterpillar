@@ -2,6 +2,7 @@ package text
 
 import (
 	"context"
+	"fmt"
 	"os"
 
 	"google.golang.org/grpc"
@@ -12,9 +13,8 @@ import (
 	"github.com/wpwilson10/caterpillar/protobuf"
 )
 
-// Sentences parses the given text into individual sentences and returns all non-empty strings.
 // External call so it can be slow.
-func Sentences(text *string) []string {
+func Summary(text *string) *string {
 	// address to call for the text application
 	var host string = os.Getenv("PY_CATERPILLAR_HOST")
 	// connect to server
@@ -29,8 +29,8 @@ func Sentences(text *string) []string {
 	// create our client
 	client := protobuf.NewCaterpillarClient(conn)
 
-	// Make request
-	response, err := client.Sentences(context.Background(),
+	// do gRPC call
+	response, err := client.Summary(context.Background(),
 		&protobuf.TextRequest{Text: *text})
 
 	// handle possible failure codes
@@ -50,8 +50,13 @@ func Sentences(text *string) []string {
 		return nil
 	}
 
-	// handle return
-	sentences := response.GetSentences()
-	// return only non-empty strings
-	return RemoveEmptySentences(sentences)
+	summary := response.GetSummary()
+	keywords := response.GetKeywords()
+
+	fmt.Println(len(summary), summary)
+	for _, each := range keywords {
+		fmt.Println("-", each)
+	}
+
+	return &summary
 }

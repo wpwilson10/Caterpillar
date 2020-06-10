@@ -6,10 +6,11 @@ from concurrent import futures
 import grpc
 import pysbd
 from newspaper import Config
+from transformers import pipeline
 
 from .setup import is_open, APP_LOG
-from .newspaper import extract_newspaper
-from . import caterpillar_pb2
+from .newspaper import newspaper
+from .text import sentences, summary, feature_extraction
 from . import caterpillar_pb2_grpc
 
 class CaterpillarServicer(caterpillar_pb2_grpc.CaterpillarServicer):
@@ -24,30 +25,23 @@ class CaterpillarServicer(caterpillar_pb2_grpc.CaterpillarServicer):
         self.config.follow_meta_refresh = True
         # setup sentence parser
         self.seg = pysbd.Segmenter(language="en", clean=False)
+        # setup NLP pipelines, currently using XLNET
+        model = 'xlnet-base-cased'
+        self.features = pipeline('feature-extraction', model=model, tokenizer=model, device=0)
+        self.sentiment = pipeline('sentiment-analysis', device=0)
 
     # Newspaper3k article extraction
     def Newspaper(self, request, context):
-        # call newspaper library
-        response = extract_newspaper(link=request.link, config=self.config)
-        # check if we failed
-        if response is None:
-            context.set_code(grpc.StatusCode.INTERNAL)
-            return caterpillar_pb2.NewspaperReply()
-        # otherwise return data
-        return response
+        return newspaper(self, request, context)
 
     # Sentence parsing
     def Sentences(self, request, context):
-        # call sentence parser
-        sentences = self.seg.segment(request.text)
-        response = caterpillar_pb2.SentenceReply()
-        # check if we failed
-        if sentences is None or len(sentences) < 1:
-            context.set_code(grpc.StatusCode.INTERNAL)
-            return response
-        # add repeated sentences field
-        response.sentences.extend(sentences)
-        return response
+        return sentences(self, request, context)
+
+    # Text summarization
+    def Summary(self, request, context):
+        feature_extraction(self, request, context)
+        return summary(request, context)
 
 def run():
     '''Run caterpillar application server'''

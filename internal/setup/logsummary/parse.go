@@ -93,7 +93,10 @@ func parseLogs(r *gzip.Reader) []AppLog {
 		} else {
 			// if not in map and got data, create new app log
 			if len(app) > 2 && len(level) > 2 {
-				n := AppLog{AppName: app}
+				n := AppLog{
+					AppName: app,
+					LogDate: time.Now().AddDate(0, 0, -1), // should be yesterday's log
+				}
 				n.Increment(level)
 				appMap[app] = &n
 			}

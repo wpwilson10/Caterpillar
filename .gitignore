@@ -13,9 +13,11 @@
 
 # Dependency directories (remove the comment below to include it)
 /.mypy_cache
+./internal_py/__pycache__
 
 # vscode
 .vscode/
+/.VSCodeCounter
 settings.json
 *.csv
 
@@ -26,3 +28,4 @@ settings.json
 /test
 logs/caterpillar.log
 *.log
+*.pyc

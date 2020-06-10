@@ -1,7 +1,6 @@
 package text
 
 import (
-	"fmt"
 	"html"
 	"regexp"
 	"strings"
@@ -13,7 +12,7 @@ import (
 	"github.com/wpwilson10/caterpillar/internal/setup"
 )
 
-// UniqueSentences returns sentences from the target that are not in the check list.
+// UniqueSentences returns sentences from the target list that are not in the check list.
 func UniqueSentences(targetSentences []string, checkSentences []string) []string {
 	out := []string{}
 	match := false
@@ -23,10 +22,9 @@ func UniqueSentences(targetSentences []string, checkSentences []string) []string
 		for _, s2 := range checkSentences {
 			// remove sentences that are not unique
 			distance := levenshtein.ComputeDistance(s1, s2)
-			// check that sentences are not mostly the same
+			// check that sentences are not mostly the same, arbitrary cutoff
 			if distance < 10 {
 				match = true
-				fmt.Println(s1)
 				break
 			}
 		}
@@ -39,8 +37,8 @@ func UniqueSentences(targetSentences []string, checkSentences []string) []string
 	return out
 }
 
-// InitialClean performs initial string text normalization such as HTML escaping.
-func InitialClean(input *string) *string {
+// NormalizeString performs basic string unicode normalization and HTML escaping.
+func NormalizeString(input *string) *string {
 	// strip invalid characters
 	text := strings.ToValidUTF8(*input, "")
 

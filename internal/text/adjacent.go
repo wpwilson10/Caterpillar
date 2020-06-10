@@ -9,7 +9,7 @@ import (
 	"github.com/wpwilson10/caterpillar/internal/setup"
 )
 
-// AdjacentArticles returns articles that were published or entered immediatlely beofre and after
+// AdjacentArticles returns articles that were published or entered immediatlely before and after
 // the given target article.
 func AdjacentArticles(db *sqlx.DB, target *news.Article) []news.Article {
 	// First use published Time from article if it exists

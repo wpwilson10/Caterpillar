@@ -24,6 +24,11 @@ class CaterpillarStub(object):
                 request_serializer=caterpillar__pb2.TextRequest.SerializeToString,
                 response_deserializer=caterpillar__pb2.SentenceReply.FromString,
                 )
+        self.Summary = channel.unary_unary(
+                '/caterpillar.Caterpillar/Summary',
+                request_serializer=caterpillar__pb2.TextRequest.SerializeToString,
+                response_deserializer=caterpillar__pb2.SummaryReply.FromString,
+                )
 
 
 class CaterpillarServicer(object):
@@ -44,6 +49,13 @@ class CaterpillarServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def Summary(self, request, context):
+        """Returns a text summary and keywords
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_CaterpillarServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -56,6 +68,11 @@ def add_CaterpillarServicer_to_server(servicer, server):
                     servicer.Sentences,
                     request_deserializer=caterpillar__pb2.TextRequest.FromString,
                     response_serializer=caterpillar__pb2.SentenceReply.SerializeToString,
+            ),
+            'Summary': grpc.unary_unary_rpc_method_handler(
+                    servicer.Summary,
+                    request_deserializer=caterpillar__pb2.TextRequest.FromString,
+                    response_serializer=caterpillar__pb2.SummaryReply.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -97,5 +114,21 @@ class Caterpillar(object):
         return grpc.experimental.unary_unary(request, target, '/caterpillar.Caterpillar/Sentences',
             caterpillar__pb2.TextRequest.SerializeToString,
             caterpillar__pb2.SentenceReply.FromString,
+            options, channel_credentials,
+            call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def Summary(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/caterpillar.Caterpillar/Summary',
+            caterpillar__pb2.TextRequest.SerializeToString,
+            caterpillar__pb2.SummaryReply.FromString,
             options, channel_credentials,
             call_credentials, compression, wait_for_ready, timeout, metadata)
