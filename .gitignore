@@ -22,6 +22,7 @@ settings.json
 *.csv
 
 # Config and unneeded files
+/venv
 /configs
 /misc
 /logs

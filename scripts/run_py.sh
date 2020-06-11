@@ -8,5 +8,7 @@
 PRJ_FILE="/home/patrick/Documents/Projects/Caterpillar/"
 cd $PRJ_FILE
 
-# run data crawler with given flag
-sudo python3 ./cmd/main.py $1
+# use virtual environment
+.\venv\Scripts\activate
+# run server
+python3 ./cmd/main.py

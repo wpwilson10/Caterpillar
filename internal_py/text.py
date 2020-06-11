@@ -4,8 +4,6 @@
 import grpc
 from gensim.summarization import summarize, keywords
 from . import caterpillar_pb2
-from transformers import XLNetModel, XLNetTokenizer
-import torch
 
 def sentences(self, request, context):
     """sentences parses text blocks into individual sentences"""
@@ -49,23 +47,3 @@ def summary(request, context):
     response.summary = summ
     response.keywords.extend(keys)
     return response
-
-def feature_extraction(self, request, context):
-    """feature_extraction returns a feature vector from the given text using an NLP transformer"""
-    # uses huggingface library
-    print(self.sentiment(request.text))
-    out = self.features("Why is Howard asking questions about the food after Leonard gives him a carton ?")
-
-    # first subscript is the instance (currently shuld only ever be 0)
-    print(len(out[0]))
-    # second subscript is the token index
-    print(len(out[0][0]))
-
-    tokenizer = XLNetTokenizer.from_pretrained('xlnet-base-cased')
-    model = XLNetModel.from_pretrained('xlnet-base-cased')
-    input_ids = torch.tensor(tokenizer.encode("Why is Howard asking questions about the food after Leonard gives him a carton ?")).unsqueeze(0)  # Batch size 1
-    outputs = model(input_ids)
-
-    print(len(outputs[0]))
-    print(len(outputs[0][0]))
-    print(outputs[0][0])
