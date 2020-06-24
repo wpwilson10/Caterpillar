@@ -7,6 +7,8 @@ require (
 	github.com/agnivade/levenshtein v1.0.3
 	github.com/go-redis/redis/v7 v7.2.0
 	github.com/gocarina/gocsv v0.0.0-20200324105150-9eab084b7a45
+	github.com/goinvest/iexcloud v0.0.0-20191106161709-2740cd5af52d
+	github.com/goinvest/iexcloud/v2 v2.6.1 // indirect
 	github.com/golang/protobuf v1.4.1
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/joho/godotenv v1.3.0
@@ -16,7 +18,7 @@ require (
 	github.com/mmcdole/goxpp v0.0.0-20181012175147-0068e33feabf // indirect
 	github.com/shopspring/decimal v0.0.0-20200227202807-02e2044944cc
 	github.com/sirupsen/logrus v1.4.2
-	github.com/turnage/graw v0.0.0-20200312050805-a125496b6083
+	github.com/turnage/graw v0.0.0-20200617182045-4c520bf5831a
 	github.com/wpwilson10/iexcloud/v2 v2.2.3-0.20191215221653-f3cc5d1adb1b
 	github.com/wpwilson10/utility v0.0.0-20200321185150-0bb43ab83dd2
 	golang.org/x/net v0.0.0-20200324143707-d3edc9973b7e // indirect

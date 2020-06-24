@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/shopspring/decimal"
-	iex "github.com/wpwilson10/iexcloud/v2"
+	iex "github.com/wpwilson10/caterpillar/internal/iexcloud"
 
 	"github.com/wpwilson10/caterpillar/internal/setup"
 )
@@ -41,7 +41,7 @@ func IEXIntraday(client *iex.Client, listing Listing) []Intraday {
 	yesterday := time.Now().AddDate(0, 0, -1*numDays)
 
 	// From IEX API - string. Formatted as YYYYMMDD
-	options := iex.IntradayHistoricalOptions{
+	options := iex.IntradayOptions{
 		ExactDate: yesterday.Format("20060102"),
 	}
 

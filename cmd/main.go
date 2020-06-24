@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 
 	"github.com/wpwilson10/caterpillar/internal/news"
 	"github.com/wpwilson10/caterpillar/internal/reddit"
@@ -74,5 +73,5 @@ func selectApp() (string, int, func()) {
 }
 
 func test() {
-	fmt.Println("Test App Called")
+	reddit.Test()
 }
