@@ -112,9 +112,6 @@ github.com/turnage/graw v0.0.0-20200617182045-4c520bf5831a h1:FfvbcuH0DD2z3NfKZq
 github.com/turnage/graw v0.0.0-20200617182045-4c520bf5831a/go.mod h1:aAkq4I/q1izZSSwHvzhDn9NA+eGxgTSuibwP3MZRlQY=
 github.com/turnage/redditproto v0.0.0-20151223012412-afedf1b6eddb h1:qR56NGRvs2hTUbkn6QF8bEJzxPIoMw3Np3UigBeJO5A=
 github.com/turnage/redditproto v0.0.0-20151223012412-afedf1b6eddb/go.mod h1:GyqJdEoZSNoxKDb7Z2Lu/bX63jtFukwpaTP9ZIS5Ei0=
-github.com/wpwilson10/iexcloud/v2 v2.2.3-0.20191215221653-f3cc5d1adb1b h1:uxjsRtO10685ibx/a5m9zxYY1VrK7pZ6V6YDBH+BgSM=
-github.com/wpwilson10/iexcloud/v2 v2.2.3-0.20191215221653-f3cc5d1adb1b/go.mod h1:7NyDiM6nEoea8kReQNyNvqjg+Vxo35ljk7EbExECRIw=
-github.com/wpwilson10/utility v0.0.0-20200321185150-0bb43ab83dd2 h1:0eKainLHxl61quOOuGQvj+wj9BkGq7l/FMDX3kr8NOc=
 github.com/wpwilson10/utility v0.0.0-20200321185150-0bb43ab83dd2/go.mod h1:7RTkKb4yhDqz1dzF2iQ8F3acMMX3Uesdz3vGmSpO4ww=
 github.com/yuin/goldmark v1.1.25/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=

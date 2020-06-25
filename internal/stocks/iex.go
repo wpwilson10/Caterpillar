@@ -9,7 +9,8 @@ import (
 	"time"
 
 	"github.com/shopspring/decimal"
-	iex "github.com/wpwilson10/caterpillar/internal/iexcloud"
+
+	iex "github.com/goinvest/iexcloud/v2"
 
 	"github.com/wpwilson10/caterpillar/internal/setup"
 )
@@ -46,7 +47,7 @@ func IEXIntraday(client *iex.Client, listing Listing) []Intraday {
 	}
 
 	// IEX API call
-	data, err := client.IntradayHistoricalPrices(context.Background(), listing.Symbol, &options)
+	data, err := client.IntradayPricesWithOpts(context.Background(), listing.Symbol, &options)
 
 	if err != nil {
 		setup.LogCommon(err).
@@ -59,18 +60,10 @@ func IEXIntraday(client *iex.Client, listing Listing) []Intraday {
 	intradayData := make([]Intraday, len(data))
 
 	for i, s := range data {
-
-		// Convert date and time strings to time struct
-		layout := "2006-01-02 15:04"
-		datetime, err := time.Parse(layout, s.Date+" "+s.Minute)
-
-		if err != nil {
-			setup.LogCommon(err).
-				WithField("listingID", listing.ListingID).
-				WithField("symbol", listing.Symbol).
-				WithField("datetime", s.Date+" "+s.Minute).
-				Error("Intraday datetime conversion")
-		}
+		// Convert iex date and time sturcts to standard time struct
+		date := time.Time(s.Date)
+		minute := time.Duration(s.Minute)
+		datetime := date.Add(minute)
 
 		// Convert iex library data to standard struct
 		intradayData[i] = Intraday{
@@ -85,7 +78,7 @@ func IEXIntraday(client *iex.Client, listing Listing) []Intraday {
 			Low:        decimal.NewFromFloat(s.Low),
 			Volume:     decimal.NewFromInt(int64(s.Volume)),
 			Notional:   decimal.NewFromFloat(s.Notional),
-			NumTrades:  decimal.NewFromInt(int64(s.NumberOfTrades)),
+			NumTrades:  decimal.NewFromInt(int64(s.NumTrades)),
 		}
 	}
 
