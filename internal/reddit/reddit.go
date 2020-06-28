@@ -81,7 +81,6 @@ func GetSubmission2(bot *reddit.Bot, permalink string) *reddit.Post {
 		"limit":    "1000",
 		"depth":    "1000",
 		"sort":     "top",
-		//"before": lastCommentID,
 	}
 
 	harvest, err := (*bot).ListingWithParams(permalink, opts)
