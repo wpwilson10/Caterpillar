@@ -4,6 +4,7 @@ go 1.13
 
 require (
 	github.com/PuerkitoBio/goquery v1.5.1 // indirect
+	github.com/Workiva/go-datastructures v1.0.52
 	github.com/agnivade/levenshtein v1.0.3
 	github.com/go-redis/redis/v7 v7.4.0
 	github.com/gocarina/gocsv v0.0.0-20200330101823-46266ca37bd3
@@ -11,6 +12,7 @@ require (
 	github.com/golang/protobuf v1.4.2
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/joho/godotenv v1.3.0
+	github.com/jupp0r/go-priority-queue v0.0.0-20160601094913-ab1073853bde
 	github.com/lib/pq v1.7.0
 	github.com/microcosm-cc/bluemonday v1.0.3
 	github.com/mmcdole/gofeed v1.0.0
@@ -26,4 +28,4 @@ require (
 	gopkg.in/guregu/null.v3 v3.5.0
 )
 
-// replace github.com/goinvest/iexcloud/v2 => C:\Users\wpwil\Documents\Projects\GitHub\iexcloud
+replace github.com/turnage/graw => C:\Users\wpwil\Documents\Projects\GitHub\graw

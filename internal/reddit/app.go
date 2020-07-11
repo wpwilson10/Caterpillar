@@ -36,6 +36,7 @@ func App() {
 		wg.Add(1)
 		go Driver(db, bot, &wg, s, articleSet, blacklist)
 		// reddit api has 60 calls/minute limit, and each run takes two calls
+		// https://github.com/reddit-archive/reddit/wiki/API#rules
 		time.Sleep(2 * time.Second)
 	}
 

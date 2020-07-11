@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/turnage/graw/reddit"
 
@@ -39,6 +40,9 @@ func BotClient() *reddit.Bot {
 			Username: os.Getenv("REDDIT_USER"),
 			Password: os.Getenv("REDDIT_PASSWORD"),
 		},
+		// reddit api has 60 calls/minute limit
+		// https://github.com/reddit-archive/reddit/wiki/API#rules
+		Rate: time.Second,
 	}
 
 	bot, err := reddit.NewBot(botCfg)

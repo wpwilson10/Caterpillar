@@ -1,13 +1,13 @@
 package reddit
 
 import (
-	"fmt"
 	"sync"
 	"time"
 
 	"github.com/jmoiron/sqlx"
 	log "github.com/sirupsen/logrus"
 	"github.com/turnage/graw/reddit"
+
 	"github.com/wpwilson10/caterpillar/internal/news"
 	"github.com/wpwilson10/caterpillar/internal/redis"
 	"github.com/wpwilson10/caterpillar/internal/setup"
@@ -63,73 +63,6 @@ func GetSubmission(bot *reddit.Bot, permalink string) *reddit.Post {
 	}
 
 	return submission
-}
-
-func Test() {
-	bot := BotClient()
-	sub := GetSubmission(bot, "/r/politics/comments/hbo4a7/fauci_warns_of_antiscience_bias_being_a_problem/")
-	coms := ProcessComments(sub.Replies)
-	fmt.Println(len(coms))
-	GetSubmission2(bot, "/r/politics/comments/hbo4a7/fauci_warns_of_antiscience_bias_being_a_problem/")
-}
-
-func GetSubmission2(bot *reddit.Bot, permalink string) *reddit.Post {
-	var lastCommentID string = ""
-
-	opts := map[string]string{
-		"raw_json": "1",
-		"limit":    "1000",
-		"depth":    "1000",
-		"sort":     "top",
-	}
-
-	harvest, err := (*bot).ListingWithParams(permalink, opts)
-	if err != nil {
-		fmt.Println("GetSub2 error", err)
-		return nil
-	}
-
-	fmt.Println("Post Name:", harvest.Posts[0].Name, "Last Comment:", lastCommentID)
-	fmt.Println("Post len:", len(harvest.Posts), len(harvest.Comments), len(harvest.Posts[0].Replies))
-
-	if err != nil {
-		fmt.Println("GetSub2 error", err)
-		return nil
-	}
-
-	parseComments2(harvest.Posts[0].Replies)
-
-	lastCommentID = harvest.Posts[0].Replies[len(harvest.Posts[0].Replies)-1].Name
-
-	/*
-		if err == reddit.BusyErr || err == reddit.RateLimitErr {
-			// reddit is busy, wait and try again
-			setup.LogCommon(err).
-				WithField("permalink", permalink).
-				Info("Recoverable error from reddit")
-
-			time.Sleep(5 * time.Second)
-			return GetSubmission(bot, permalink)
-		} else if err == reddit.ThreadDoesNotExistErr {
-			// don't log if nothing found
-			return nil
-		} else if err != nil {
-			setup.LogCommon(err).
-				WithField("permalink", permalink).
-				Warn("Failed bot.Thread")
-		}
-	*/
-
-	return nil
-}
-
-func parseComments2(replies []*reddit.Comment) {
-	if len(replies) > 0 {
-		for i, comment := range replies {
-			fmt.Println(i, comment.IsTopLevel(), comment.Author, comment.Name)
-			parseComments2(comment.Replies)
-		}
-	}
 }
 
 // InsertSubmission puts a submission into the RedditSubmission database table.
@@ -291,7 +224,7 @@ func commentFamily(comments []*reddit.Comment, out *[]*reddit.Comment) {
 		for _, c := range comments {
 			// add to list
 			*out = append(*out, c)
-			fmt.Println(c.Name, c.Author, c.IsTopLevel())
+			// fmt.Println(c.Name, c.Author, c.IsTopLevel())
 			// Recursion
 			// go to each child comment
 			commentFamily(c.Replies, out)
