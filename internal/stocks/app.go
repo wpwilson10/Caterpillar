@@ -37,18 +37,18 @@ func App() {
 		Info("RunSummary")
 }
 
-// UpdateIndex update the index for listings in the IEX listing table.
-func UpdateIndex() {
+// UpdateActiveDriver update the active status for listings in the IEX listing table.
+func UpdateActiveDriver() {
 	// Setup necessary clients
 	db := setup.SQL()
 
 	// get all listings from database
 	dbListings := AllListings(db)
 	// update index values
-	freshListings := UpdateIndexTable(db, dbListings)
+	freshListings := UpdateActive(db, dbListings)
 
 	// update existing listings
-	toAuditListings, updatedListings := ChangedOnIndex(dbListings, freshListings)
+	toAuditListings, updatedListings := ChangedActive(dbListings, freshListings)
 	AuditListings(toAuditListings, db)
 	UpdateListings(updatedListings, db)
 

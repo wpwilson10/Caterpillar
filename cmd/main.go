@@ -40,7 +40,7 @@ func selectApp() (string, int, func()) {
 	newsAppFlag := flag.Bool("newsApp", false, "NewsApp")
 	iexAppFlag := flag.Bool("iexApp", false, "IEXApp")
 	iexUpdateFlag := flag.Bool("iexUpdate", false, "IEXUpdateApp")
-	iexIndexFlag := flag.Bool("iexIndex", false, "IEXIndexApp")
+	iexActiveFlag := flag.Bool("iexActive", false, "IEXIndexApp")
 	textClean := flag.Bool("textClean", false, "TextClean")
 	logSummary := flag.Bool("logSummary", false, "LogSummary")
 	flag.Parse()
@@ -59,8 +59,8 @@ func selectApp() (string, int, func()) {
 		return "IEXApp", setup.EnvToInt("IEX_PORT"), stocks.App
 	case *iexUpdateFlag:
 		return "IEXUpdate", setup.EnvToInt("IEX_PORT"), stocks.UpdateListingsDriver
-	case *iexIndexFlag:
-		return "IEXIndex", setup.EnvToInt("IEX_PORT"), stocks.UpdateIndex
+	case *iexActiveFlag:
+		return "IEXActive", setup.EnvToInt("IEX_PORT"), stocks.UpdateActiveDriver
 	case *textClean:
 		return "TextClean", 9998, text.App
 	case *logSummary:

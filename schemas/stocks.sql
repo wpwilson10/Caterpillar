@@ -1,7 +1,8 @@
 CREATE TABLE Listing(
 	listing_id serial PRIMARY KEY,
 	update_time timestamptz, -- when this current contact became valid
-	is_enabled boolean,
+	is_enabled boolean, -- IEX enabled
+	is_active boolean, -- whether the stocks app is using this listing
 	symbol text,
 	name text,
 	iex_id text, -- unique ID applied by IEX to track securities through symbol changes.

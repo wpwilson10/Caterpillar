@@ -10,6 +10,106 @@ import (
 	"github.com/wpwilson10/caterpillar/internal/setup"
 )
 
+// UpdateActive returns an array of listings with their active status values updated from .csv files.
+// Does not change the input listings.
+// The .csv filepaths are configured in the enivonment's .env file
+func UpdateActive(db *sqlx.DB, listings []Listing) []Listing {
+	// keep track of what changed
+	updatedListings := []Listing{}
+
+	// Get data from .csv file
+	var filepath string = os.Getenv("ACTIVE_FILE")
+	var active []*Membership = CSVtoMembership(filepath)
+
+	// sanity check that we got something
+	if len(active) > 0 {
+		setup.LogCommon(nil).
+			WithField("len(active)", len(active)).
+			Error("Member length check")
+	}
+
+	// Standardize data and put in hashmap for easy lookup
+	mapActive := make(map[string]int)
+	for i, s := range active {
+		var sym string = strings.TrimSpace(s.Symbol)
+		sym = strings.ToUpper(sym)
+		mapActive[sym] = i
+	}
+
+	// do updates
+	for _, l := range listings {
+		// find a matching listing
+		var sym string = strings.ToUpper(l.Symbol)
+		_, isActive := mapActive[sym]
+
+		// copy listing
+		temp := l
+		// update listing values to match whether in map
+		temp.IsActive = isActive
+		updatedListings = append(updatedListings, temp)
+	}
+
+	return updatedListings
+}
+
+// ChangedActive compares listings matching on listingID to find which have changed active status.
+// Returns the original listings that should go to audit, and the updated listings.
+func ChangedActive(db []Listing, fresh []Listing) (original []Listing, updated []Listing) {
+
+	// hashmap to allow O(1) lookup instead of looping
+	m := make(map[int64]int)
+	// put db listings in map
+	for i, s := range db {
+		m[s.ListingID] = i
+	}
+
+	// check whether the fresh listings are in the database
+	for _, f := range fresh {
+		// Find a matching listing
+		i, keyExists := m[f.ListingID]
+
+		var flag bool // true if listings do not match
+
+		if keyExists {
+			flag = false
+			// get the listing
+			s := db[i]
+			// copy original listing so that fields we don't care about in this function don't change
+			temp := s
+			// Check whether index values we care about have changed.
+			// If they have changed, put the fresh value in temp
+			if s.IsActive != f.IsActive {
+				flag = true
+				temp.IsActive = f.IsActive
+			}
+
+			// save the differing listings
+			if flag {
+				original = append(original, s)
+				updated = append(updated, temp)
+
+				setup.LogCommon(nil).
+					WithField("listingID", s.ListingID).
+					WithField("iexID", s.IexID).
+					WithField("symbol", s.Symbol).
+					WithField("symbolFresh", f.Symbol).
+					WithField("listingIDFresh", f.ListingID).
+					Info("Changed Active Status")
+			}
+		}
+	}
+
+	// sanity check that same number of listings are returned
+	if len(original) != len(updated) {
+		setup.LogCommon(nil).
+			WithField("len(changedDb)", len(original)).
+			WithField("len(changedFresh)", len(updated)).
+			Error("Return arrays size does not match")
+	}
+
+	return original, updated
+}
+
 // UpdateIndexTable returns an array of listings with their index values updated from .csv files.
 // Does not change the input listings. Currently only checks SP500 and Russell3000.
 // The .csv filepaths are configured in the enivonment's .env file

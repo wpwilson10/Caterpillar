@@ -23,14 +23,15 @@ type Listing struct {
 	Exchange      string    `db:"exchange"`
 	IsSP500       bool      `db:"is_sp500"`
 	IsRussell3000 bool      `db:"is_russell3000"`
+	IsActive      bool      `db:"is_active"`
 }
 
 // InsertNewListings inserts all information from IEX as a new entry in the Listing table.
-// It does not check if the listing already exists. Defaults index values to true.
+// It does not check if the listing already exists. Defaults to active.
 func InsertNewListings(listings []Listing, db *sqlx.DB) {
 
-	var insertStmt string = "INSERT INTO Listing (listing_id, update_time, is_enabled, symbol, name, iex_id, type, region, currency, exchange)"
-	var valueStmt string = "VALUES (DEFAULT, Now(), :is_enabled, :symbol, :name, :iex_id, :type, :region, :currency, :exchange)"
+	var insertStmt string = "INSERT INTO Listing (listing_id, update_time, is_enabled, symbol, name, iex_id, type, region, currency, exchange, is_active)"
+	var valueStmt string = "VALUES (DEFAULT, Now(), :is_enabled, :symbol, :name, :iex_id, :type, :region, :currency, :exchange, :is_active)"
 	var wholeStmt string = insertStmt + " " + valueStmt
 
 	// start a transaction
@@ -60,7 +61,7 @@ func UpdateListings(fresh []Listing, db *sqlx.DB) {
 	var updateStmt string = "UPDATE Listing"
 	var updateSetStmt1 string = " SET update_time = Now(), is_enabled = :is_enabled, symbol = :symbol, name = :name,"
 	var updateSetStmt2 string = " type = :type, region = :region, currency = :currency, exchange = :exchange,"
-	var updateSetIndex string = " is_sp500 = :is_sp500, is_russell3000 = :is_russell3000"
+	var updateSetIndex string = " is_sp500 = :is_sp500, is_russell3000 = :is_russell3000, is_active = :is_active"
 	var updateWhereStmt string = " WHERE listing_id = :listing_id"
 	updateStmt = updateStmt + updateSetStmt1 + updateSetStmt2 + updateSetIndex + updateWhereStmt
 
@@ -91,10 +92,10 @@ func UpdateListings(fresh []Listing, db *sqlx.DB) {
 func AuditListings(current []Listing, db *sqlx.DB) {
 	var insertStmt string = "INSERT INTO AuditListing (audit_id, listing_id, update_time,"
 	var insertIEX string = " is_enabled, symbol, name, iex_id, type, region, currency, exchange,"
-	var insertIndex string = " is_sp500, is_russell3000)"
+	var insertIndex string = " is_sp500, is_russell3000, is_active)"
 	var valueStmt string = "VALUES (DEFAULT, :listing_id, :update_time,"
 	var valueIEX string = " :is_enabled, :symbol, :name, :iex_id, :type, :region, :currency, :exchange,"
-	var valueIndex string = " :is_sp500, :is_russell3000)"
+	var valueIndex string = " :is_sp500, :is_russell3000, :is_active)"
 	var auditStmt string = insertStmt + insertIEX + insertIndex + " " + valueStmt + valueIEX + valueIndex
 
 	// start a transaction
@@ -119,11 +120,11 @@ func AuditListings(current []Listing, db *sqlx.DB) {
 	}
 }
 
-// ActiveListings returns all entries from the Listing database table that are enabled.
+// ActiveListings returns all entries from the Listing database table that are enabled for this app.
 // The returned array is sorted in ascending order by listing ID
 func ActiveListings(db *sqlx.DB) []Listing {
 
-	var selectStmt string = "SELECT * FROM Listing WHERE is_enabled='true' ORDER BY listing_id ASC"
+	var selectStmt string = "SELECT * FROM Listing WHERE is_active='true' ORDER BY listing_id ASC"
 	listings := []Listing{}
 
 	// if you have null fields and use SELECT *, you must use sql.Null* in your struct
