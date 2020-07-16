@@ -1,6 +1,7 @@
 package reddit
 
 import (
+	"fmt"
 	"sync"
 	"time"
 
@@ -19,15 +20,32 @@ func Driver(db *sqlx.DB, bot *reddit.Bot, wg *sync.WaitGroup, q QueueSubmission,
 	defer wg.Done()
 
 	// Get updated submission information
-	submission := GetSubmission(bot, q.Permalink)
+	harvest := GetSubmission(bot, q.Permalink)
 
-	// if we got a real not-deleted submission, and it was commented or scored at least 5 times
-	scoreCutoff := setup.EnvToInt("REDDIT_SCORE_CUTOFF")
-	if (submission != nil) && (!submission.Deleted) && ((submission.NumComments + submission.Score) >= int32(scoreCutoff)) {
+	// sanity check that we got a single post
+	if len(harvest.Posts) != 1 {
+		setup.LogCommon(nil).
+			WithField("permalink", q.Permalink).
+			Error("More than one post returned")
+		return
+	}
+	submission := harvest.Posts[0]
+
+	// if we got a real not-deleted submission, and it was commented or scored enough
+	if checkSubmission(submission) {
 		// Put submission in database, returns the row ID
 		sID := InsertSubmission(db, submission)
 		// Transform comments from tree to list
-		commentList := ProcessComments(submission.Replies)
+		commentList := ParseComments(submission.Replies)
+
+		// Get more comments if we can assume it will be worthwhile
+		if checkGetMores(submission, harvest, commentList) {
+			// Get more comments
+			mQ := NewMoreQueue(harvest, 5, 3, 15)
+			moreComments := mQ.MoreChildren()
+			commentList = append(commentList, moreComments...)
+		}
+
 		// Add comments to database
 		InsertComments(db, commentList, sID)
 
@@ -39,11 +57,45 @@ func Driver(db *sqlx.DB, bot *reddit.Bot, wg *sync.WaitGroup, q QueueSubmission,
 	}
 }
 
-// GetSubmission returns a submission based on it's permalink.
+// checkSubmission returns true if we got a real not-deleted submission,
+// and it was commented + scored at least REDDIT_SCORE_CUTOFF times
+func checkSubmission(submission *reddit.Post) bool {
+	scoreCutoff := setup.EnvToInt("REDDIT_SCORE_CUTOFF")
+	return submission != nil &&
+		!submission.Deleted &&
+		(submission.NumComments+submission.Score) >= int32(scoreCutoff)
+}
+
+// checkGetMores returns true if we should get more comments,
+// based on arbitrary cutoff assumptions
+func checkGetMores(submission *reddit.Post, harvest *reddit.Harvest, commentList []*reddit.Comment) bool {
+	lenChildren := 0
+	if submission.More != nil {
+		lenChildren = len(submission.More.Children)
+	}
+
+	fmt.Println("check - Link:", submission.Name, "Num Com:", submission.NumComments,
+		"Len Com:", len(commentList), "Num Mores Children:", lenChildren, "Ratio:", float32(len(commentList))/float32(submission.NumComments))
+
+	// if the more query will get several comments then do it
+	c1 := submission.More != nil && len(submission.More.Children) >= 10
+	// if there are many comments missing
+	c2 := submission.NumComments > 100 && (float32(len(commentList))/float32(submission.NumComments) < 0.667)
+
+	return c1 || c2
+}
+
+// GetSubmission returns a submission harvest based on it's permalink.
 // May return nil in case the submission was not found (i.e. deleted)
-func GetSubmission(bot *reddit.Bot, permalink string) *reddit.Post {
+func GetSubmission(bot *reddit.Bot, permalink string) *reddit.Harvest {
 	// use graw to get submission content
-	submission, err := (*bot).Thread(permalink)
+	opts := map[string]string{
+		"raw_json": "1",
+		"limit":    "1000",
+		"depth":    "1000",
+		// "sort":     "top",
+	}
+	harvest, err := (*bot).ListingWithParams(permalink, opts)
 
 	if err == reddit.BusyErr || err == reddit.RateLimitErr {
 		// reddit is busy, wait and try again
@@ -59,10 +111,10 @@ func GetSubmission(bot *reddit.Bot, permalink string) *reddit.Post {
 	} else if err != nil {
 		setup.LogCommon(err).
 			WithField("permalink", permalink).
-			Warn("Failed bot.Thread")
+			Warn("Failed bot.Listing")
 	}
 
-	return submission
+	return &harvest
 }
 
 // InsertSubmission puts a submission into the RedditSubmission database table.
@@ -204,30 +256,18 @@ func InsertComments(db *sqlx.DB, comments []*reddit.Comment, sID int64) {
 	}
 }
 
-// ProcessComments takes branching comment trees and returns a list of the comments.
+// ParseComments takes branching comment trees and returns a list of the comments.
 // Each comment from geddit contains a tree of comments that are the comments children.
 // This travels the trees and adds them to a simple list.
-func ProcessComments(comments []*reddit.Comment) []*reddit.Comment {
-	// save the comments in a list
-	var out []*reddit.Comment
-
-	commentFamily(comments, &out)
-
-	return out
-}
-
-// Recursively travel child comments and add the comment to a list.
-func commentFamily(comments []*reddit.Comment, out *[]*reddit.Comment) {
-	// exit condition
-	// don't process empty comments
-	if len(comments) > 0 {
-		for _, c := range comments {
-			// add to list
-			*out = append(*out, c)
-			// fmt.Println(c.Name, c.Author, c.IsTopLevel())
-			// Recursion
-			// go to each child comment
-			commentFamily(c.Replies, out)
+func ParseComments(replies []*reddit.Comment) []*reddit.Comment {
+	// save the current comments in a list
+	out := replies
+	// get child comments
+	for _, comment := range replies {
+		if len(comment.Replies) > 0 {
+			// recursively explore child tree
+			out = append(out, ParseComments(comment.Replies)...)
 		}
 	}
+	return out
 }

@@ -47,7 +47,31 @@ func BotClient() *reddit.Bot {
 
 	bot, err := reddit.NewBot(botCfg)
 	if err != nil {
-		setup.LogCommon(err).Fatal("SetupBot NewBot")
+		setup.LogCommon(err).Fatal("Failed to create NewBot")
+	}
+
+	return &bot
+}
+
+// MoreBotClient returns a graw client using my login config from a .env.
+func MoreBotClient() *reddit.Bot {
+	// Bot account and login info
+	botCfg := reddit.BotConfig{
+		Agent: os.Getenv("REDDIT_MORE_USER_AGENT"),
+		App: reddit.App{
+			ID:       os.Getenv("REDDIT_MORE_CLIENT_ID"),
+			Secret:   os.Getenv("REDDIT_MORE_CLIENT_SECRET"),
+			Username: os.Getenv("REDDIT_MORE_USER"),
+			Password: os.Getenv("REDDIT_MORE_PASSWORD"),
+		},
+		// reddit api has 60 calls/minute limit
+		// https://github.com/reddit-archive/reddit/wiki/API#rules
+		Rate: time.Second,
+	}
+
+	bot, err := reddit.NewBot(botCfg)
+	if err != nil {
+		setup.LogCommon(err).Fatal("Failed to create NewBot")
 	}
 
 	return &bot

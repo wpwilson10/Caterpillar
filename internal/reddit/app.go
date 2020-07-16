@@ -70,12 +70,12 @@ func BotApp() {
 	// Start up
 	_, wait, err := graw.Run(handler, *bot, subredditCfg)
 	if err != nil {
-		setup.LogCommon(err).Fatal("SetupBot Run")
+		setup.LogCommon(err).Fatal("Failed to run reddit BotApp")
 	}
 
 	// block so the bot will announce (ideally) forever.
 	err = wait()
 	if err != nil {
-		setup.LogCommon(err).Fatal("SetupBot Wait")
+		setup.LogCommon(err).Info("Reddit BotApp stopped")
 	}
 }

@@ -1,6 +1,7 @@
 package reddit
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/Workiva/go-datastructures/queue"
@@ -27,8 +28,8 @@ func (m moreItem) Compare(other queue.Item) int {
 	return 0
 }
 
-// moreQueue handles retrieving more comment links from reddit submissions
-type moreQueue struct {
+// MoreQueue handles retrieving more comment links from reddit submissions
+type MoreQueue struct {
 	pq           *queue.PriorityQueue // use priority queue to help focus on largest more queries
 	maxDepth     int                  // limit depth of comment tree
 	maxCalls     int                  // limit number of calls to gather more comments
@@ -39,7 +40,7 @@ type moreQueue struct {
 }
 
 // get the next more item from the queue
-func (mQ *moreQueue) pop() *reddit.More {
+func (mQ *MoreQueue) pop() *reddit.More {
 	if mQ.pq.Empty() {
 		return nil
 	}
@@ -55,15 +56,15 @@ func (mQ *moreQueue) pop() *reddit.More {
 }
 
 // checkConditions returns true if we should query reddit for the given more
-func (mQ *moreQueue) checkConditions(more *reddit.More) bool {
+func (mQ *MoreQueue) checkConditions(more *reddit.More) bool {
 	return more.Depth <= mQ.maxDepth &&
 		mQ.cutoff <= len(more.Children) &&
 		mQ.numCalls <= mQ.maxCalls
 }
 
-// newMoreQueue creates a queue for harvesting mores
-func newMoreQueue(harvest reddit.Harvest, maxDepth int, cutoff int, maxCalls int) *moreQueue {
-	mQ := moreQueue{
+// NewMoreQueue creates a queue for harvesting mores
+func NewMoreQueue(harvest *reddit.Harvest, maxDepth int, cutoff int, maxCalls int) *MoreQueue {
+	mQ := MoreQueue{
 		pq:       queue.NewPriorityQueue(1, false),
 		maxDepth: maxDepth,
 		cutoff:   cutoff,
@@ -103,7 +104,10 @@ func newMoreQueue(harvest reddit.Harvest, maxDepth int, cutoff int, maxCalls int
 }
 
 // MoreChildren repeated queries /api/morechildren using this queue to get comments from a reddit thread.
-func (mQ *moreQueue) MoreChildren(bot *reddit.Bot) {
+func (mQ *MoreQueue) MoreChildren() []*reddit.Comment {
+	// create client that performs queries
+	bot := MoreBotClient()
+
 	// while we still have mores in the queue
 	for !mQ.pq.Empty() {
 		// get the next more with most number of children
@@ -122,18 +126,17 @@ func (mQ *moreQueue) MoreChildren(bot *reddit.Bot) {
 					Error("Failed to query morechildren")
 			}
 			mQ.addToQueue(harvest.Comments, harvest.Mores)
-		} else {
-			setup.LogCommon(nil).
-				WithField("link", mQ.reaperParams["link_id"]).
-				Error("Failed to type assert more")
 		}
 	}
+	fmt.Println("MoreChildren - Link:", mQ.reaperParams["link_id"], "Number of Calls:", mQ.numCalls, "Comments gathered:", len(mQ.comments))
+
+	return mQ.comments
 }
 
 // addToQueue takes outputs from a harvest and adds them to the moreQueue struct
-func (mQ *moreQueue) addToQueue(comments []*reddit.Comment, mores []*reddit.More) {
+func (mQ *MoreQueue) addToQueue(comments []*reddit.Comment, mores []*reddit.More) {
 	// travel comment tree to get all comments
-	allComments := parseComments(comments)
+	allComments := ParseComments(comments)
 	// save out comments
 	mQ.comments = append(mQ.comments, allComments...)
 	// check for mores associated with each comment

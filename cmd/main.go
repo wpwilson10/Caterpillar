@@ -73,5 +73,5 @@ func selectApp() (string, int, func()) {
 }
 
 func test() {
-	reddit.Test()
+	return
 }
