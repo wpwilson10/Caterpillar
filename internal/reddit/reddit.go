@@ -1,7 +1,6 @@
 package reddit
 
 import (
-	"fmt"
 	"sync"
 	"time"
 
@@ -41,7 +40,7 @@ func Driver(db *sqlx.DB, bot *reddit.Bot, wg *sync.WaitGroup, q QueueSubmission,
 		// Get more comments if we can assume it will be worthwhile
 		if checkGetMores(submission, harvest, commentList) {
 			// Get more comments
-			mQ := NewMoreQueue(harvest, 5, 3, 15)
+			mQ := NewMoreQueue(harvest, 6, 2, 20)
 			moreComments := mQ.MoreChildren()
 			commentList = append(commentList, moreComments...)
 		}
@@ -69,18 +68,14 @@ func checkSubmission(submission *reddit.Post) bool {
 // checkGetMores returns true if we should get more comments,
 // based on arbitrary cutoff assumptions
 func checkGetMores(submission *reddit.Post, harvest *reddit.Harvest, commentList []*reddit.Comment) bool {
-	lenChildren := 0
+	c1 := false
 	if submission.More != nil {
-		lenChildren = len(submission.More.Children)
+		// if the more query will get several comments then do it
+		c1 = submission.More != nil && len(submission.More.Children) >= 10
 	}
 
-	fmt.Println("check - Link:", submission.Name, "Num Com:", submission.NumComments,
-		"Len Com:", len(commentList), "Num Mores Children:", lenChildren, "Ratio:", float32(len(commentList))/float32(submission.NumComments))
-
-	// if the more query will get several comments then do it
-	c1 := submission.More != nil && len(submission.More.Children) >= 10
-	// if there are many comments missing
-	c2 := submission.NumComments > 100 && (float32(len(commentList))/float32(submission.NumComments) < 0.667)
+	// if there are many comments missing then do it
+	c2 := submission.NumComments > 20 && (float32(len(commentList))/float32(submission.NumComments) < 0.667)
 
 	return c1 || c2
 }

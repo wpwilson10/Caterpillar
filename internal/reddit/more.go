@@ -1,7 +1,6 @@
 package reddit
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/Workiva/go-datastructures/queue"
@@ -17,8 +16,8 @@ type moreItem struct {
 func (m moreItem) Compare(other queue.Item) int {
 	// make sure this is moreItem
 	mI, ok := other.(moreItem)
-	// can't compare unlike types
-	if !ok {
+	// can't compare unlike types or missing values
+	if !ok || m.more == nil || mI.more == nil {
 		return 0
 	} else if len(m.more.Children) > len(mI.more.Children) {
 		return -1
@@ -36,12 +35,13 @@ type MoreQueue struct {
 	numCalls     int                  // how many calls have actually been done
 	cutoff       int                  // number of comments a more must have to consider for further parsing
 	reaperParams map[string]string    // common parameters for queries
-	comments     []*reddit.Comment    // save all comments for output
+	comments     []*reddit.Comment    // comments saved from more calls for output
 }
 
 // get the next more item from the queue
 func (mQ *MoreQueue) pop() *reddit.More {
 	if mQ.pq.Empty() {
+		setup.LogCommon(nil).Error("Attempted to pop empty more queue ")
 		return nil
 	}
 	// ignore err because we just checked there are values
@@ -49,10 +49,12 @@ func (mQ *MoreQueue) pop() *reddit.More {
 	m := item[0]
 	// assert these are in fact moreItems
 	mI, ok := m.(moreItem)
-	if ok {
-		return mI.more
+	if !ok {
+		setup.LogCommon(nil).Error("More Queue contains a non-moreItem")
+		return nil
 	}
-	return nil
+
+	return mI.more
 }
 
 // checkConditions returns true if we should query reddit for the given more
@@ -82,6 +84,10 @@ func NewMoreQueue(harvest *reddit.Harvest, maxDepth int, cutoff int, maxCalls in
 
 	// then handle any mores or comments that are in the harvest
 	mQ.addToQueue(harvest.Comments, harvest.Mores)
+	// we don't actually want to save any passed in comments,
+	// they were just needed to see if mores were attached
+	// clear out comments saved by addToQueue
+	mQ.comments = []*reddit.Comment{}
 
 	// now figure out the link name if we didn't get it from the post
 	if link == "" {
@@ -113,7 +119,7 @@ func (mQ *MoreQueue) MoreChildren() []*reddit.Comment {
 		// get the next more with most number of children
 		more := mQ.pop()
 		// check our parameters
-		if mQ.checkConditions(more) {
+		if more != nil && mQ.checkConditions(more) {
 			// good so process
 			mQ.numCalls = mQ.numCalls + 1
 			// put children in comment delimited list
@@ -128,7 +134,6 @@ func (mQ *MoreQueue) MoreChildren() []*reddit.Comment {
 			mQ.addToQueue(harvest.Comments, harvest.Mores)
 		}
 	}
-	fmt.Println("MoreChildren - Link:", mQ.reaperParams["link_id"], "Number of Calls:", mQ.numCalls, "Comments gathered:", len(mQ.comments))
 
 	return mQ.comments
 }
@@ -145,6 +150,7 @@ func (mQ *MoreQueue) addToQueue(comments []*reddit.Comment, mores []*reddit.More
 			mQ.pq.Put(moreItem{more: c.More})
 		}
 	}
+
 	// add any directly found mores
 	for _, m := range mores {
 		mQ.pq.Put(moreItem{more: m})
