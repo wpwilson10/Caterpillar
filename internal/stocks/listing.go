@@ -192,6 +192,13 @@ func NewListings(db []Listing, fresh []Listing) []Listing {
 			_, keyExists := m[s.IexID]
 
 			if !keyExists {
+				// make new common stock or etf listings active
+				if s.Type == "et" || s.Type == "cs" {
+					s.IsActive = true
+				} else {
+					s.IsActive = false
+				}
+
 				new = append(new, s)
 
 				setup.LogCommon(nil).

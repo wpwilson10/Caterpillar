@@ -1,7 +1,6 @@
 package stocks
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/wpwilson10/caterpillar/internal/setup"
@@ -15,7 +14,7 @@ func App() {
 
 	// get active listings and latest intraday times from database
 	// use russell3000 index to reduce number of calls
-	listings := Russell3000Listings(db)
+	listings := ActiveListings(db)
 	latestTimes := LatestIntraday(db)
 
 	// Update data for all active listings
@@ -51,8 +50,6 @@ func UpdateActiveDriver() {
 	toAuditListings, updatedListings := ChangedActive(dbListings, freshListings)
 	AuditListings(toAuditListings, db)
 	UpdateListings(updatedListings, db)
-
-	fmt.Println(len(dbListings), " ", len(freshListings), " ", len(toAuditListings), " ", len(updatedListings))
 }
 
 // UpdateListingsDriver checks IEX for new or changed listings and updates database.

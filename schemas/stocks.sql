@@ -2,7 +2,7 @@ CREATE TABLE Listing(
 	listing_id serial PRIMARY KEY,
 	update_time timestamptz, -- when this current contact became valid
 	is_enabled boolean, -- IEX enabled
-	is_active boolean, -- whether the stocks app is using this listing
+	is_active boolean DEFAULT TRUE, -- whether the stocks app is using this listing. Default to true to ensure new listings are extracted cause IPOs are important.
 	symbol text,
 	name text,
 	iex_id text, -- unique ID applied by IEX to track securities through symbol changes.
@@ -10,8 +10,8 @@ CREATE TABLE Listing(
 	region text,
 	currency text,
 	exchange text,
-	is_sp500 boolean DEFAULT True, -- true if the listing is currently on the index, false otherwise. Default to true to ensure new listings are extracted if we don't know otherwise.
-	is_russell3000 boolean DEFAULT True -- true if the listing is currently on the index, false otherwise. Default to true to ensure new listings are extracted if we don't know otherwise.
+	is_sp500 boolean DEFAULT False, -- true if the listing is currently on the index, false otherwise.
+	is_russell3000 boolean DEFAULT False -- true if the listing is currently on the index, false otherwise. 
 );
 
 CREATE TABLE AuditListing(
