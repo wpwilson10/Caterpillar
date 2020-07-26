@@ -22,7 +22,7 @@ func UpdateActive(db *sqlx.DB, listings []Listing) []Listing {
 	var active []*Membership = CSVtoMembership(filepath)
 
 	// sanity check that we got something
-	if len(active) > 0 {
+	if len(active) <= 0 {
 		setup.LogCommon(nil).
 			WithField("len(active)", len(active)).
 			Error("Member length check")
