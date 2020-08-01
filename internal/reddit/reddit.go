@@ -40,7 +40,7 @@ func Driver(db *sqlx.DB, bot *reddit.Bot, wg *sync.WaitGroup, q QueueSubmission,
 		// Get more comments if we can assume it will be worthwhile
 		if checkGetMores(submission, harvest, commentList) {
 			// Get more comments
-			mQ := NewMoreQueue(harvest, 6, 2, 20)
+			mQ := NewMoreQueue(harvest, 6, 2, 32)
 			moreComments := mQ.MoreChildren()
 			commentList = append(commentList, moreComments...)
 		}

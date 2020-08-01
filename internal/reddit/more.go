@@ -121,38 +121,74 @@ func (mQ *MoreQueue) MoreChildren() []*reddit.Comment {
 		// check our parameters
 		if more != nil && mQ.checkConditions(more) {
 			// good so process
-			mQ.numCalls = mQ.numCalls + 1
-			// put children in comment delimited list
-			mQ.reaperParams["children"] = strings.Join(more.Children, ",")
-			// query reddit directly
-			harvest, err := (*bot).ListingWithParams("/api/morechildren", mQ.reaperParams)
-			if err != nil {
-				setup.LogCommon(err).
-					WithField("link", mQ.reaperParams["link_id"]).
-					Error("Failed to query morechildren")
+			childrenList := childrenLists(more.Children)
+			for _, children := range childrenList {
+				mQ.numCalls = mQ.numCalls + 1
+				// put children in comment delimited list
+				mQ.reaperParams["children"] = children
+				// query reddit directly
+				harvest, err := (*bot).ListingWithParams("/api/morechildren", mQ.reaperParams)
+				if err != nil {
+					setup.LogCommon(err).
+						WithField("link", mQ.reaperParams["link_id"]).
+						Error("Failed to query morechildren")
+				}
+				mQ.addToQueue(harvest.Comments, harvest.Mores)
 			}
-			mQ.addToQueue(harvest.Comments, harvest.Mores)
 		}
 	}
+
+	setup.LogCommon(nil).
+		WithField("link", mQ.reaperParams["link_id"]).
+		WithField("numComments", len(mQ.comments)).
+		WithField("numCalls", mQ.numCalls).
+		Info("More children query")
 
 	return mQ.comments
 }
 
+// childrenLists divides the full list of children into chunks of 100
+// reddit can only handle 100 children at a time, else 414 errors
+func childrenLists(all []string) []string {
+	out := []string{}
+
+	for i := 0; i < len(all); i += 100 {
+		temp := all[i:min(i+100, len(all)-1)]
+		out = append(out, strings.Join(temp, ","))
+	}
+
+	return out
+}
+
+// returns the minimum of a and b
+func min(a, b int) int {
+	if a <= b {
+		return a
+	}
+	return b
+}
+
 // addToQueue takes outputs from a harvest and adds them to the moreQueue struct
 func (mQ *MoreQueue) addToQueue(comments []*reddit.Comment, mores []*reddit.More) {
-	// travel comment tree to get all comments
-	allComments := ParseComments(comments)
-	// save out comments
-	mQ.comments = append(mQ.comments, allComments...)
-	// check for mores associated with each comment
-	for _, c := range allComments {
-		if c.More != nil {
-			mQ.pq.Put(moreItem{more: c.More})
+	if comments != nil {
+		// travel comment tree to get all comments
+		allComments := ParseComments(comments)
+		// save out comments
+		mQ.comments = append(mQ.comments, allComments...)
+		// check for mores associated with each comment
+		for _, c := range allComments {
+			if c.More != nil && c.More.Children != nil && len(c.More.Children) > 0 {
+				mQ.pq.Put(moreItem{more: c.More})
+			}
 		}
 	}
 
-	// add any directly found mores
-	for _, m := range mores {
-		mQ.pq.Put(moreItem{more: m})
+	if mores != nil {
+		// add any directly found mores
+		for _, m := range mores {
+			if m != nil && m.Children != nil && len(m.Children) > 0 {
+				mQ.pq.Put(moreItem{more: m})
+			}
+		}
 	}
 }
